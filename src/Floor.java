@@ -17,9 +17,9 @@ public class Floor implements Runnable {
 	public Floor(int floorNumber, Scheduler scheduler) {
 		this.floorNumber = floorNumber;
 		this.scheduler = scheduler;
+		inputData = new ArrayList<InputData>();
 		
 		inputData.add(new InputData(null, 2, 1));
-		
 	}
 	
 	public int getFloorNumber() {
@@ -30,9 +30,17 @@ public class Floor implements Runnable {
 	public void readEvents() {
 		
 	}
+	
+	public void sendEvent(InputData event) {
+		scheduler.addEvent(event);
+	}
 
 	@Override
 	public void run() {
+		
+		while(!inputData.isEmpty()) {
+			sendEvent(inputData.remove(0));
+		}
 		// TODO Auto-generated method stub
 		
 	}

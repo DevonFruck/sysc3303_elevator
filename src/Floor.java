@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * @author Group
  *
  */
-public class Floor implements Runnable {
+public class Floor extends Thread {
 	
 	int floorNumber;
 	Scheduler scheduler;
@@ -17,9 +17,9 @@ public class Floor implements Runnable {
 	public Floor(int floorNumber, Scheduler scheduler) {
 		this.floorNumber = floorNumber;
 		this.scheduler = scheduler;
-		inputData = new ArrayList<InputData>();
 		
-		inputData.add(new InputData(null, 2, 1));
+		inputData = new ArrayList<InputData>();
+		inputData.add(new InputData(null, floorNumber, 2));
 	}
 	
 	public int getFloorNumber() {
@@ -37,12 +37,14 @@ public class Floor implements Runnable {
 
 	@Override
 	public void run() {
-		
-		while(!inputData.isEmpty()) {
-			sendEvent(inputData.remove(0));
+		while(true) {
+			
+			while(!inputData.isEmpty()) {
+				sendEvent(inputData.remove(0));
+			}
+			
+			scheduler.elevatorIsApproaching(floorNumber);
 		}
-		// TODO Auto-generated method stub
-		
 	}
 
 }

@@ -20,24 +20,9 @@ class DataTest{
 
         Thread.sleep(2000);
         
-        LocalTime timeTest = LocalTime.parse("12:25:15.12");
-        EventsHandler testEvents = new EventsHandler("12:25:15.12,2,Up,3");
-        
+        //LocalTime timeTest = LocalTime.parse("12:25:15.12");
+        //EventsHandler testEvents = new EventsHandler("12:25:15.12,2,Up,3");
         //InputEvents input = elevatorCar.getCurrentEvent();
-        
-        // Validating EventsHandler methods
-        assertEquals(3, testEvents.getDestinationFloor());
-        assertEquals(2, testEvents.getInitialFloor());
-        assertEquals(true, testEvents.isGoingUp());
-        assertEquals(timeTest, testEvents.getTime());
-       
-        // Validating ElevatorCar methods
-        assertNull(elevatorCar.getCurrentEvent());
-        assertEquals(1, elevatorCar.getCurrentFloor());
-        elevatorCar.moveFloor(2);
-        assertEquals(2, elevatorCar.getCurrentFloor());
-        // Validating the elevator is not active by default
-        assertFalse(elevatorCar.getIsActive());
         
         // Validating the floor methods
         assertEquals(1, floor.getFloorNumber());
@@ -46,6 +31,28 @@ class DataTest{
         // Validating the values for the methods
         assertFalse(scheduler.setFloorLights(1));
         //assertTrue(scheduler.elevatorIsApproaching(1));
-
+    }
+    
+    void testsForElevatorCarMethods() throws InterruptedException{
+    	// Validating ElevatorCar methods
+    	Scheduler scheduler = new Scheduler();
+        ElevatorCar elevatorCar = new ElevatorCar(scheduler);
+    	assertNull(elevatorCar.getCurrentEvent());
+        assertEquals(1, elevatorCar.getCurrentFloor());
+        elevatorCar.moveFloor(2);
+        assertEquals(2, elevatorCar.getCurrentFloor());
+        // Validating the elevator is not active by default
+        assertFalse(elevatorCar.getIsActive()); 
+    }
+    
+    void testsForEventHandlerMethods() throws InterruptedException{
+    	LocalTime timeTest = LocalTime.parse("12:25:15.12");
+        EventsHandler testEvents = new EventsHandler("12:25:15.12,2,Up,3");
+                
+        // Validating EventsHandler methods
+        assertEquals(3, testEvents.getDestinationFloor());
+        assertEquals(2, testEvents.getInitialFloor());
+        assertEquals(true, testEvents.isGoingUp());
+        assertEquals(timeTest, testEvents.getTime());
     }
 }

@@ -8,16 +8,14 @@ public class Floor extends Thread {
 	
 	int floorNumber;
 	Scheduler scheduler;
-	ArrayList<InputData> inputData;
+//	ArrayList<InputEvents> InputEvents;
 	private ArrayList<InputEvents> events;
 	
 	public Floor(int floorNumber, Scheduler scheduler) {
 		this.floorNumber = floorNumber;
 		this.scheduler = scheduler;
 		this.events = new ArrayList<InputEvents>();
-		
-		inputData = new ArrayList<InputData>();
-		inputData.add(new InputData(null, floorNumber, 2));
+//		InputEvents = new ArrayList<InputEvents>();
 	}
 	
 	public int getFloorNumber() {
@@ -37,15 +35,11 @@ public class Floor extends Thread {
 //		this.getEventList(2);
 	}
 	
-	public void getEventList(int floorNum) {
-		if(this.floorNumber == floorNum) {
-			for(int i=0; i<this.events.size(); i++) {
-				System.out.println(this.events.get(i));
-			}
-		}
+	public ArrayList<InputEvents> getEventList() {
+		return events;
 	}
 	
-	public void sendEvent(InputData event) {
+	public void sendEvent(InputEvents event) {
 		scheduler.addEvent(event);
 	}
 
@@ -54,10 +48,9 @@ public class Floor extends Thread {
 		readEvents();
 		while(true) {
 			
-			while(!inputData.isEmpty()) {
-				sendEvent(inputData.remove(0));
+			while(!events.isEmpty()) {
+				sendEvent(events.remove(0));
 			}
-			
 			scheduler.elevatorIsApproaching(floorNumber);
 		}
 	}

@@ -10,11 +10,11 @@ import java.util.ArrayList;
  */
 public class Scheduler {
 	
-	ArrayList<InputData> eventsQueue;
+	ArrayList<InputEvents> eventsQueue;
 	ArrayList<ElevatorCar> elevatorList;
 	
 	public Scheduler() {
-		eventsQueue = new ArrayList<InputData>();
+		eventsQueue = new ArrayList<InputEvents>();
 		
 		Thread[] floors = new Thread[2];
 		floors[0] = new Thread(new Floor(1, this), "floor1");
@@ -33,8 +33,8 @@ public class Scheduler {
 	}
 	
 	// Adds events to queue from floor subsystem
-	public synchronized void addEvent(InputData InputDataEvent) {
-		eventsQueue.add(InputDataEvent);
+	public synchronized void addEvent(InputEvents InputEventsEvent) {
+		eventsQueue.add(InputEventsEvent);
 		notifyAll();
 	}
 	
@@ -54,7 +54,7 @@ public class Scheduler {
 	
 	// Function for elevator, elevators will poll for 
 	// available events when inactive
-	public synchronized InputData getElevatorEvent() {
+	public synchronized InputEvents getElevatorEvent() {
 		while(eventsQueue.isEmpty()) {
 			try {
 				wait();
@@ -64,7 +64,7 @@ public class Scheduler {
 			}
 		}
 		
-		InputData event = eventsQueue.remove(0);
+		InputEvents event = eventsQueue.remove(0);
 		notifyAll();
 		return event;
 	}

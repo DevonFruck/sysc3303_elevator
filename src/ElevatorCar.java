@@ -10,7 +10,7 @@ public class ElevatorCar extends Thread {
 	
 	//ArrayList<> = new ArrayList<>;
 	boolean active;
-	InputData currentEvent;
+	InputEvents currentEvent;
 	Scheduler scheduler;
 	int currentFloor;
 	
@@ -21,7 +21,7 @@ public class ElevatorCar extends Thread {
 		currentFloor = 1;
 	}
 	
-	public InputData getCurrentEvent() {
+	public InputEvents getCurrentEvent() {
 		return currentEvent;
 	}
 	
@@ -64,15 +64,15 @@ public class ElevatorCar extends Thread {
 				active = true;
 			}
 			System.out.println("\nElevator received event");
-			System.out.println("moving to starting floor " + currentEvent.getStartFloor());
+			System.out.println("moving to starting floor " + currentEvent.getInitialFloor());
 			
-			moveFloor(currentEvent.getStartFloor());
+			moveFloor(currentEvent.getInitialFloor());
 			
-			System.out.println("arrived at starting floor. moving to floor " + currentEvent.getEndFloor());
+			System.out.println("arrived at starting floor. moving to floor " + currentEvent.getDestinationFloor());
 			
-			moveFloor(currentEvent.getEndFloor());
+			moveFloor(currentEvent.getDestinationFloor());
 			
-			System.out.println("arrived at destination floor " + currentEvent.getEndFloor());
+			System.out.println("arrived at destination floor " + currentEvent.getDestinationFloor());
 			
 			active = false;
 			currentEvent = null;

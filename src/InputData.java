@@ -18,5 +18,9 @@ public class InputData {
 	public int getEndFloor() {
 		return floorEnd;
 	}
+	
+	public Time getTime() {
+		return time;
+	}
 
 }

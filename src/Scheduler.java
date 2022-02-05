@@ -11,8 +11,6 @@ import java.util.ArrayList;
 public class Scheduler {
 	
 	ArrayList<InputData> eventsQueue;
-	ArrayList<InputData> activeEvents;
-	
 	ArrayList<ElevatorCar> elevatorList;
 	
 	public Scheduler() {
@@ -21,10 +19,6 @@ public class Scheduler {
 		Thread[] floors = new Thread[2];
 		floors[0] = new Thread(new Floor(1, this), "floor1");
 		floors[1] = new Thread(new Floor(2, this), "floor2");
-		
-		
-		//Thread[] elevators = new Thread[1];
-		//elevators[0] = new Thread(new ElevatorCar(this), "elevator1");
 		
 		elevatorList = new ArrayList<ElevatorCar>();
 		elevatorList.add(new ElevatorCar(this));
@@ -71,7 +65,6 @@ public class Scheduler {
 		}
 		
 		InputData event = eventsQueue.remove(0);
-		//activeEvents.add(event);
 		notifyAll();
 		return event;
 	}

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>7</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>28</x>
+      <y>175</y>
+      <w>203</w>
+      <h>182</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Thread&gt;&gt;
+ElevatorCar
+--
+
+-active: boolean
+-currentEvent: InputData
+-scheduler: Scheduler
+-currentFloor: int
+
+--
+
++ElevatorCar(Scheduler)
++getCurrentEvent(): InputData
++getCurrentFloor(): int
++getIsActive(): boolean
++moveFloor()
++run()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>602</x>
+      <y>175</y>
+      <w>224</w>
+      <h>175</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Thread&gt;&gt;
+Floor
+--
+
+-floorNumber: int
+-scheduler: Scheduler
+-inputData: ArrayList&lt;InputData&gt;
+
+--
+
+Floor(int, Scheduler)
+getFloorNumber(): int
+readEvents()
+sendEvents()
+run()
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>266</x>
+      <y>385</y>
+      <w>266</w>
+      <h>133</h>
+    </coordinates>
+    <panel_attributes>Scheduler
+--
+
+-eventsQueue: ArrayList&lt;InputData&gt;
+
+--
+
++Scheduler()
++addEvent()
++elevatorIsApproaching() : boolean
++getElevatorEvent() : InputData
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>322</x>
+      <y>14</y>
+      <w>147</w>
+      <h>133</h>
+    </coordinates>
+    <panel_attributes>InputData
+--
+
+-time: Time
+-floorStart: int
+-floorEnd: int
+
+--
+
+getStartFloor()
+getEndFloor()
+getTime()
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>84</x>
+      <y>350</y>
+      <w>196</w>
+      <h>119</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m1=1...n
+m2=1</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;140.0;260.0;140.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>525</x>
+      <y>343</y>
+      <w>224</w>
+      <h>126</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m1=1...n
+m2=1</panel_attributes>
+    <additional_attributes>250.0;10.0;250.0;150.0;10.0;150.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1134</x>
+      <y>266</y>
+      <w>133</w>
+      <h>21</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;170.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>98</x>
+      <y>77</y>
+      <w>238</w>
+      <h>112</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=1</panel_attributes>
+    <additional_attributes>10.0;140.0;10.0;10.0;320.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>462</x>
+      <y>77</y>
+      <w>266</w>
+      <h>112</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=1</panel_attributes>
+    <additional_attributes>350.0;140.0;350.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+</diagram>

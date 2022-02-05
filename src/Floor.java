@@ -1,10 +1,6 @@
 import java.util.ArrayList;
 
 /**
- * 
- */
-
-/**
  * @author Group
  *
  */
@@ -30,9 +26,22 @@ public class Floor extends Thread {
 	
 	// Reads from text file to put into ArrayList
 	public void readEvents() {
-		events.addAll(TxtFileReader.getEvents("src/input.txt"));
-		for(int i=0; i<events.size(); i++) {
-			System.out.println(events.get(i));
+		ArrayList<InputEvents> arr = new ArrayList<InputEvents>();
+		arr.addAll(TxtFileReader.getEvents("src/input.txt"));
+		for(int i=0; i<arr.size(); i++) {
+			InputEvents temp = arr.get(i);
+			if(temp.getInitialFloor()==this.floorNumber) {
+				this.events.add(temp);
+			}
+		}
+//		this.getEventList(2);
+	}
+	
+	public void getEventList(int floorNum) {
+		if(this.floorNumber == floorNum) {
+			for(int i=0; i<this.events.size(); i++) {
+				System.out.println(this.events.get(i));
+			}
 		}
 	}
 	

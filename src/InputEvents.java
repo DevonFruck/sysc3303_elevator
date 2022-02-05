@@ -2,7 +2,7 @@ import java.time.LocalTime;
 
 /**
  * This interface class is for the input Events/ orders for the elevator
- * @author Laith
+ * @author Group
  */
 public interface InputEvents {
 	//Get the event time
@@ -21,5 +21,4 @@ public interface InputEvents {
 	boolean isSeriousError();
 	//Boolean method to see if the error/fault is trivial 
 	boolean isTrivialError();
-	
 }

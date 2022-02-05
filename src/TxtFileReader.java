@@ -5,7 +5,7 @@ import java.io.FileReader;
 
 /**
  * This class is responsible for handling the reading of external text files
- * @author Laith
+ * @author Group
  */
 public class TxtFileReader {
 	/**

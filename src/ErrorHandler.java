@@ -3,7 +3,7 @@ import java.time.LocalTime;
  * This class is responsible for handling faulty elevator events/orders with "error" keyword
  * Meaning that this class handles events with faults/errors
  * This class implements the interface InputEvents
- * @author Laith
+ * @author Group
  */
 
 public class ErrorHandler implements InputEvents{

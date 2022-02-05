@@ -1,10 +1,10 @@
 import java.time.LocalTime;
 
 /**
- * This class is responsible for handling elevator events/orders with "user" keyword
+ * This class is responsible for handling successful elevator events/orders with "user" keyword
  * Meaning that this class handles events with no faults/errors
  * This class implements the interface InputEvents
- * @author Laith
+ * @author Group
  */
 
 public class EventsHandler implements InputEvents {

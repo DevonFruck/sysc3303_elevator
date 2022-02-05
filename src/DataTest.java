@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Junit testing for the all the data to be read in the system.
- * @author Azizul Hasan 101124159
+ * @author Group
  * */
 
 class DataTest{
@@ -23,15 +23,23 @@ class DataTest{
         // Validating whether the elevator event can be sent
         assertEquals(input, scheduler.getElevatorEvent());
 
+        // Validating the floor number methods
+        assertEquals(1, floor.getFloorNumber());
+        assertEquals(1, elevatorCar.getCurrentFloor());
+
+        // Validating the elevator is not active by default
+        assertFalse(elevatorCar.getIsActive());
+
+        // Validating the values for the methods
+        assertFalse(scheduler.setFloorLights(1));
+        assertTrue(scheduler.elevatorIsApproaching(1));
+
         // Validating whether all the data is read
-        assertEquals(2,floor.inputData.size());
+        assertEquals(7,floor.inputData.size());
 
         floor.interrupt();
         elevatorCar.start();
         Thread.sleep(2000);
-
-        // assertFalse(scheduler.elevatorIsApproaching(2));
-        // assertEquals(input, scheduler.getElevatorEvent());
 
     }
 }

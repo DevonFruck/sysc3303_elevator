@@ -16,8 +16,9 @@ Lab L4, Group 9
 	* `src/Scheduler.java` - The scheduler is used to communicate all the event data between floors and the elevator
 	* `src/DataTest.java` - Unit test for reading the input file and communication of the data between the classes
 	* `src/InputData.java` - The class is used by ElevatorCar and Floor
-	* `src/FileReader.java` - This class reads the inputdata.txt file and adds the inputs to an arrayList
-	* `src/inputdata.txt` - file that contains all the input events, as described by the project specification
+	* `src/TextFileReader.java` - This class reads the input.txt file and adds the inputs to an arrayList
+	* `src/ErrorHandler.java` - Error Handler takes care of the error events in the system using the class InputData
+	* `src/input.txt` - file that contains all the input events, as described by the project specification
 	* `.classpath` - required Eclipse file, adds JUnit to buildpath
 	* `.project` - required Eclipse file
 	* `.settings/org.eclipse.jdt.core.prefs` - sets correct Java version used on lab machines (Java SE 10.0.2)
@@ -54,9 +55,9 @@ Note: Please make sure to add Junit 5 for the test cases to run.
 	* Elevator.java : Group
         * FloorSubsystem.java : Group
         * Scheduler.java : Group
-        * InputInformation.java : Devon/Group?
-        * FileReader.java : Laith
-	* DataTest.java : Azizul
-        * README.md : Azizul
-	* Class Diagram : Devon/Group?
-	* Sequence Diagram: Daniel 
+        * InputInformation.java : Group
+        * TextFileReader.java : Group
+	* DataTest.java : Group
+        * README.md : Group
+	* Class Diagram : Group
+	* Sequence Diagram: Group 

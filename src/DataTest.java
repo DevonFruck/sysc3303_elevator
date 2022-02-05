@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 class DataTest{
     
     @Test
-    void test() throws InterruptedException{
+    void testsForElevatorCommunication() throws InterruptedException{
         // Initiating all the classes
         Scheduler scheduler = new Scheduler();
         ElevatorCar elevatorCar = new ElevatorCar(scheduler);

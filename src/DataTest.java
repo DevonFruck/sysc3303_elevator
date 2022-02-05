@@ -1,6 +1,7 @@
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 
 import org.junit.jupiter.api.Test;
 
@@ -33,6 +34,21 @@ class DataTest{
         //assertTrue(scheduler.elevatorIsApproaching(1));
     }
     
+    @Test
+    void FloorTest() throws InterruptedException{
+    	Scheduler scheduler = new Scheduler();
+    	Floor floor = new Floor(1, scheduler);
+    	
+    	//test getFloorNumber()
+    	assertEquals(1, floor.getFloorNumber());
+    	
+    	//test readEvents() and getEventList()
+    	assertEquals(new ArrayList<InputEvents>(), floor.getEventList());
+    	floor.readEvents();
+    	assertNotNull(floor.getEventList());
+    }
+    
+    @Test
     void testsForElevatorCarMethods() throws InterruptedException{
     	// Validating ElevatorCar methods
     	Scheduler scheduler = new Scheduler();
@@ -45,6 +61,7 @@ class DataTest{
         assertFalse(elevatorCar.getIsActive()); 
     }
     
+    @Test
     void testsForEventHandlerMethods() throws InterruptedException{
     	LocalTime timeTest = LocalTime.parse("12:25:15.12");
         EventsHandler testEvents = new EventsHandler("12:25:15.12,2,Up,3");

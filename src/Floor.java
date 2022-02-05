@@ -8,14 +8,12 @@ public class Floor extends Thread {
 	
 	int floorNumber;
 	Scheduler scheduler;
-//	ArrayList<InputEvents> InputEvents;
 	private ArrayList<InputEvents> events;
 	
 	public Floor(int floorNumber, Scheduler scheduler) {
 		this.floorNumber = floorNumber;
 		this.scheduler = scheduler;
 		this.events = new ArrayList<InputEvents>();
-//		InputEvents = new ArrayList<InputEvents>();
 	}
 	
 	public int getFloorNumber() {
@@ -32,7 +30,6 @@ public class Floor extends Thread {
 				this.events.add(temp);
 			}
 		}
-//		this.getEventList(2);
 	}
 	
 	public ArrayList<InputEvents> getEventList() {

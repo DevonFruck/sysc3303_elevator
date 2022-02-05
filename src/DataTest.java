@@ -20,24 +20,32 @@ class DataTest{
 
         Thread.sleep(2000);
         
-//      LocalTime timeTest = LocalTime.parse("12:25:15.12");
+        LocalTime timeTest = LocalTime.parse("12:25:15.12");
         EventsHandler testEvents = new EventsHandler("12:25:15.12,2,Up,3");
         
-        InputEvents input = elevatorCar.getCurrentEvent();
+        //InputEvents input = elevatorCar.getCurrentEvent();
         
-        // Validating whether the elevator event can be sent
-        assertEquals(testEvents, scheduler.getElevatorEvent());
-
-        // Validating the floor number methods
-        assertEquals(1, floor.getFloorNumber());
+        // Validating EventsHandler methods
+        assertEquals(3, testEvents.getDestinationFloor());
+        assertEquals(2, testEvents.getInitialFloor());
+        assertEquals(true, testEvents.isGoingUp());
+        assertEquals(timeTest, testEvents.getTime());
+       
+        // Validating ElevatorCar methods
+        assertNull(elevatorCar.getCurrentEvent());
         assertEquals(1, elevatorCar.getCurrentFloor());
-
+        elevatorCar.moveFloor(2);
+        assertEquals(2, elevatorCar.getCurrentFloor());
         // Validating the elevator is not active by default
         assertFalse(elevatorCar.getIsActive());
-
+        
+        // Validating the floor methods
+        assertEquals(1, floor.getFloorNumber());
+        
+        
         // Validating the values for the methods
         assertFalse(scheduler.setFloorLights(1));
-        assertTrue(scheduler.elevatorIsApproaching(1));
+        //assertTrue(scheduler.elevatorIsApproaching(1));
 
     }
 }

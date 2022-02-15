@@ -9,16 +9,18 @@
 public class ElevatorCar extends Thread {
 	
 	//ArrayList<> = new ArrayList<>;
-	boolean active;
+	boolean isActive, isDoorOpen;
 	InputEvents currentEvent;
 	Scheduler scheduler;
 	int currentFloor;
 	
+	
 	public ElevatorCar(Scheduler scheduler) {
-		active = false;
+		isActive = false;
 		currentEvent = null;
 		this.scheduler = scheduler;
 		currentFloor = 1;
+		isDoorOpen = false;
 	}
 	
 	public InputEvents getCurrentEvent() {
@@ -30,8 +32,13 @@ public class ElevatorCar extends Thread {
 	}
 	
 	public boolean getIsActive() {
-		return active;
+		return isActive;
 	}
+	
+	public void setIsActive(boolean val) {
+	   isActive = val;
+	}
+	
 	
 	public void moveFloor(int floorEnd) {
 		while(floorEnd != currentFloor) {
@@ -59,9 +66,9 @@ public class ElevatorCar extends Thread {
 	@Override
 	public void run() {
 		while(true) {			
-			while(!active && currentEvent == null) {
+			while(!isActive && currentEvent == null) {
 				currentEvent = scheduler.getElevatorEvent();
-				active = true;
+				isActive = true;
 			}
 			System.out.println("\nElevator received event");
 			System.out.println("moving to starting floor " + currentEvent.getInitialFloor());
@@ -74,7 +81,7 @@ public class ElevatorCar extends Thread {
 			
 			System.out.println("arrived at destination floor " + currentEvent.getDestinationFloor());
 			
-			active = false;
+			setIsActive(false);
 			currentEvent = null;
 			
 		}

@@ -16,7 +16,6 @@ class DataTest{
     void testsForElevatorCommunication() throws InterruptedException{
         // Initiating all the classes
         Scheduler scheduler = new Scheduler();
-        ElevatorCar elevatorCar = new ElevatorCar(scheduler);
         Floor floor = new Floor(1, scheduler); 
 
         Thread.sleep(2000);

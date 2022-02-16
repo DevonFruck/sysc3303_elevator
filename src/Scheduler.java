@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * @author Group
  *
  */
-public class Scheduler {
+public class Scheduler extends Thread {
 	
 	ArrayList<InputEvents> eventsQueue;
 	ArrayList<ElevatorCar> elevatorList;
@@ -73,6 +73,40 @@ public class Scheduler {
 		return false;
 	}
 	
+	// Gets an event to be passed to an elevator
+	public synchronized InputEvents getLatestEvent() {
+	   while(eventsQueue.size() == 0) {
+	      try {
+             wait();
+          } catch (InterruptedException e) {
+             // TODO Auto-generated catch block
+             e.printStackTrace();
+          }
+	   }
+	   return eventsQueue.remove(0);
+	}
+	
+	public void run() {
+	   System.out.println("scheduler");
+	   while(true) {
+	      
+	      InputEvents latestEvent = getLatestEvent();
+	      int eventFloors[] = {latestEvent.getInitialFloor(), latestEvent.getDestinationFloor()};
+	      
+	      //eventsQueue has an item
+	      for(ElevatorCar elev: elevatorList) {
+	         if(elev.getMotor() == 1 && latestEvent.isGoingUp()) {
+	            if (elev.addFloor(eventFloors)) {
+	               break;
+	            }
+	         }
+	         else if (elev.getMotor() == 0 || elev.getMotor() == 2 && !latestEvent.isGoingUp()) {
+	            if (elev.addFloor(eventFloors))
+                   break;
+	         }
+	      }
+	   }
+	}
 	
 	/**
 	 * @param args
@@ -81,6 +115,7 @@ public class Scheduler {
 		// TODO Auto-generated method stub
 		@SuppressWarnings("unused")
 		Scheduler scheduler = new Scheduler();
+		scheduler.start();
 	}
 
 }

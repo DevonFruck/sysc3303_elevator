@@ -1,9 +1,15 @@
+package tests;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
 
 import org.junit.jupiter.api.Test;
+
+import ElevatorCar;
+import Floor;
+import InputEvents;
+import Scheduler;
 
 /**
  * Junit testing for the all the data to be read in the system.

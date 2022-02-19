@@ -22,7 +22,7 @@ public class ElevatorButton {
 	 * Presses button for floor the elevator wants to go to
 	 */
 	public void pressButton() {
-		if (this.elevatorLamp.isOn())
+		if (!this.elevatorLamp.isOn())
 			this.elevatorLamp.turnOn();
 		else
 			this.elevatorLamp.turnOff();

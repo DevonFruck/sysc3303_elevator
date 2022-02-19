@@ -62,8 +62,6 @@ class DataTest{
         ElevatorCar elevatorCar = new ElevatorCar(scheduler);
     	assertNull(elevatorCar.getCurrentEvent());
         assertEquals(1, elevatorCar.getCurrentFloor());
-        elevatorCar.moveFloor();
-        assertEquals(2, elevatorCar.getCurrentFloor());
         // Validating the elevator is not active by default
         assertFalse(elevatorCar.getIsActive()); 
     }

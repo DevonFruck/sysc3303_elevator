@@ -10,3 +10,6 @@
 /input.txt
 /ElevatorMotor.class
 /motorStat.class
+/ElevatorButton.class
+/ElevatorLamp.class
+/ElevatorDoor.class

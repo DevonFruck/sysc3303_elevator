@@ -1,3 +1,4 @@
+package types;
 import java.time.LocalTime;
 /**
  * This class is responsible for handling faulty elevator events/orders with "error" keyword

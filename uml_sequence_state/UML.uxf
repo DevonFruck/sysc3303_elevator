@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>7</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>273</x>
+      <y>455</y>
+      <w>203</w>
+      <h>182</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Thread&gt;&gt;
+ElevatorCar
+--
+
+-active: boolean
+-currentEvent: InputData
+-scheduler: Scheduler
+-currentFloor: int
+
+--
+
++ElevatorCar(Scheduler)
++getCurrentEvent(): InputData
++getCurrentFloor(): int
++getIsActive(): boolean
++moveFloor()
++run()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>966</x>
+      <y>448</y>
+      <w>224</w>
+      <h>175</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Thread&gt;&gt;
+Floor
+--
+
+-floorNumber: int
+-scheduler: Scheduler
+-inputData: ArrayList&lt;InputData&gt;
+
+--
+
++ Floor(int, Scheduler)
++ getFloorNumber(): int
++ readEvents()
++ sendEvents()
++ run()
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>595</x>
+      <y>476</y>
+      <w>266</w>
+      <h>133</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Thread&gt;&gt;
+Scheduler
+--
+
+-eventsQueue: ArrayList&lt;EventsHandler&gt;
+
+--
+
++Scheduler()
++addEvent()
++elevatorIsApproaching() : boolean
++getElevatorEvent() : InputData
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>644</x>
+      <y>245</y>
+      <w>168</w>
+      <h>126</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Entity&gt;&gt;
+EventsHandler
+--
+
+-time: LocalTime
+-initialFloor: int
+-isUp: boolean
+-destinationFloor: int
+
+--
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>469</x>
+      <y>532</y>
+      <w>140</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=1...n
+m2=1</panel_attributes>
+    <additional_attributes>10.0;10.0;180.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>854</x>
+      <y>532</y>
+      <w>126</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=1...n
+m2=1</panel_attributes>
+    <additional_attributes>160.0;10.0;110.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>343</x>
+      <y>308</y>
+      <w>315</w>
+      <h>161</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m1=1
+m2=1</panel_attributes>
+    <additional_attributes>10.0;210.0;430.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>805</x>
+      <y>308</y>
+      <w>280</w>
+      <h>154</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m1=1
+m2=1</panel_attributes>
+    <additional_attributes>380.0;200.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>644</x>
+      <y>42</y>
+      <w>168</w>
+      <h>154</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;interface&gt;&gt;
+InputEvents
+
+
+--
++isGoingUp()
++getInitialFloor()
++getDestinationFloor()
++getTime()
++isSeriousError()
++isTrivialError()
++getElevator()
++toString()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>714</x>
+      <y>189</y>
+      <w>21</w>
+      <h>70</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;80.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1232</x>
+      <y>455</y>
+      <w>294</w>
+      <h>98</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Entity&gt;&gt;
+TxtFileReader
+
+--
+
++getEvents(String): ArrayList&lt;InputEvents&gt;
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1183</x>
+      <y>504</y>
+      <w>63</w>
+      <h>21</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;</panel_attributes>
+    <additional_attributes>10.0;10.0;70.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>294</x>
+      <y>700</y>
+      <w>168</w>
+      <h>133</h>
+    </coordinates>
+    <panel_attributes>
+ElevatorButton
+--
+- floorNum: int
+- status: booelean
+
+--
+
++pressButton()
++buttonStatus()
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>714</x>
+      <y>364</y>
+      <w>28</w>
+      <h>126</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m1=1
+m2=1</panel_attributes>
+    <additional_attributes>10.0;160.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>777</x>
+      <y>679</y>
+      <w>168</w>
+      <h>133</h>
+    </coordinates>
+    <panel_attributes>
+FloorLamp
+--
+- lamplight: booelean
+
+--
++ FloorLamp()
++ turnLampOn()
++ turnLampOff()
++ getLampStatus()
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>224</x>
+      <y>763</y>
+      <w>84</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=1</panel_attributes>
+    <additional_attributes>10.0;10.0;100.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>63</x>
+      <y>700</y>
+      <w>168</w>
+      <h>133</h>
+    </coordinates>
+    <panel_attributes>
+ElevatorLamp
+--
+- floorNum: int
+- status: booelean
+
+--
+
++ ElevatorLamp()
++ turnOn()
++ turnOff()
++ getFloorNum()
++ isOn()
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>364</x>
+      <y>630</y>
+      <w>49</w>
+      <h>84</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;&gt;&gt;&gt;&gt;
+m1=1..n
+m2=1</panel_attributes>
+    <additional_attributes>10.0;100.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1001</x>
+      <y>679</y>
+      <w>168</w>
+      <h>133</h>
+    </coordinates>
+    <panel_attributes>
+FloorButton
+--
+- floorNum: int
+- status: booelean
+
+--
++ pressButton()
++ checkButton()
++ checkLamp()
++ buttonStatus()
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1064</x>
+      <y>616</y>
+      <w>49</w>
+      <h>77</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;&gt;&gt;&gt;&gt;
+m1=1..n
+m2=1</panel_attributes>
+    <additional_attributes>10.0;90.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>938</x>
+      <y>742</y>
+      <w>77</w>
+      <h>28</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=1</panel_attributes>
+    <additional_attributes>10.0;10.0;90.0;10.0</additional_attributes>
+  </element>
+</diagram>

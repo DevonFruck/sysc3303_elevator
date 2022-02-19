@@ -15,7 +15,8 @@ public class ElevatorCar extends Thread {
 	InputEvents currentEvent;
 	Scheduler scheduler;
 	int currentFloor;
-	int motor;
+	//int motor;
+	ElevatorMotor motor = new ElevatorMotor();
 	
 	// Directions for elevatorCar motor
 	int IDLE = 0;
@@ -34,7 +35,7 @@ public class ElevatorCar extends Thread {
 		this.scheduler = scheduler;
 		currentFloor = 1;
 		isDoorOpen = false;
-		motor = IDLE;
+		motor.setStatus(motorStat.IDLE);
 	}
 	
 	/**
@@ -54,10 +55,10 @@ public class ElevatorCar extends Thread {
 	// Add a floor for the elevator to visit
 	public boolean addFloor(int floor[]) {
 	  
-	   if (motor == DOWN && floor[0] > currentFloor)
+	   if (motor.getStatus() == motorStat.DOWN && floor[0] > currentFloor)
 	      return false;
 	   
-	   else if (motor == UP && floor[0] < currentFloor)
+	   else if (motor.getStatus() == motorStat.UP && floor[0] < currentFloor)
 	      return false;
 	   
 	   if (!floors.contains(floor[0]))
@@ -65,10 +66,10 @@ public class ElevatorCar extends Thread {
 	   if (!floors.contains(floor[1]))
 	      floors.add(floor[1]);
 	   
-	   if(motor == UP) {
+	   if(motor.getStatus() == motorStat.UP) {
 	      Collections.sort(floors);
 	   }
-	   else if (motor == DOWN) {
+	   else if (motor.getStatus() == motorStat.DOWN) {
 	      Collections.reverse(floors);
 	   }
 	   return true;
@@ -102,14 +103,6 @@ public class ElevatorCar extends Thread {
 	}
 	
 	/**
-	 * Getter for the activity of the elevator motor
-	 * @return 0 for idle, 1 for up, 2 for down.
-	 */
-	public int getMotor() {
-	   return motor;
-	}
-	
-	/**
 	 * moveFloor moves the elevator up and down floors
 	 * until the final destination is reached.
 	 * 
@@ -119,20 +112,20 @@ public class ElevatorCar extends Thread {
 		while(floors.size() > 0) {
 			try {
 				if(floors.get(0) == currentFloor) {
-				    motor = IDLE;
+				    motor.setStatus(motorStat.IDLE);
 				    floors.remove(0);
 				    System.out.println("Arrived at a dest floor: " + currentFloor);
 				}
 				
 				else if(floors.get(0) > currentFloor) {
-				    motor = UP;
+				    motor.setStatus(motorStat.UP);
 					Thread.sleep(2000);
 					currentFloor += 1;
 					System.out.println("Moved up to floor " + currentFloor);
 				} 
 				
 				else {
-				    motor = DOWN;
+				    motor.setStatus(motorStat.DOWN);
 					Thread.sleep(2000);	
 					currentFloor -= 1;
 					System.out.println("Moved down to floor: " + currentFloor);

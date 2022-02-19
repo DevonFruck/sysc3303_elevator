@@ -95,12 +95,12 @@ public class Scheduler extends Thread {
 	      
 	      //eventsQueue has an item
 	      for(ElevatorCar elev: elevatorList) {
-	         if(elev.getMotor() == 1 && latestEvent.isGoingUp()) {
+	         if(elev.motor.getStatus() == motorStat.UP && latestEvent.isGoingUp()) {
 	            if (elev.addFloor(eventFloors)) {
 	               break;
 	            }
 	         }
-	         else if (elev.getMotor() == 0 || elev.getMotor() == 2 && !latestEvent.isGoingUp()) {
+	         else if (elev.motor.getStatus() == motorStat.IDLE || elev.motor.getStatus() == motorStat.DOWN && !latestEvent.isGoingUp()) {
 	            if (elev.addFloor(eventFloors))
                    break;
 	         }

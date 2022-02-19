@@ -20,7 +20,8 @@ public class ElevatorCar extends Thread {
 	InputEvents currentEvent;
 	Scheduler scheduler;
 	int currentFloor;
-	//int motor;
+	ElevatorButton elevButtons[] = new ElevatorButton[5];
+	
 	ElevatorMotor motor = new ElevatorMotor();
 	
 	// Directions for elevatorCar motor
@@ -41,6 +42,10 @@ public class ElevatorCar extends Thread {
 		currentFloor = 1;
 		isDoorOpen = false;
 		motor.setStatus(motorStat.IDLE);
+		
+		for (int i=0; i<5; i++) {			
+			elevButtons[i] = new ElevatorButton(i+1);
+		}
 	}
 	
 	/**
@@ -77,6 +82,10 @@ public class ElevatorCar extends Thread {
 	   else if (motor.getStatus() == motorStat.DOWN) {
 	      Collections.reverse(floors);
 	   }
+	   
+	   // Turn on button lights for destination floor
+	   elevButtons[floor[1]].pressButton();
+	   
 	   return true;
 	}
 	
@@ -122,7 +131,7 @@ public class ElevatorCar extends Thread {
 			try {
 				if(floors.get(0) == currentFloor) {
 				    motor.setStatus(motorStat.IDLE);
-				    floors.remove(0);
+				    int destFloor = floors.remove(0);
 				    System.out.println("Arrived at a dest floor: " + currentFloor);
 				}
 				
@@ -141,7 +150,6 @@ public class ElevatorCar extends Thread {
 				}
 				
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -158,7 +166,6 @@ public class ElevatorCar extends Thread {
 			}
 			
 			moveFloor();
-		
 		}
 	}
 }

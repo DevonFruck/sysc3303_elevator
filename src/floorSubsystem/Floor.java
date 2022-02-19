@@ -1,7 +1,6 @@
 package floorSubsystem;
-import java.util.ArrayList;
 
-import elevator.ElevatorButton;
+import java.util.ArrayList;
 import scheduler.Scheduler;
 import types.InputEvents;
 
@@ -14,12 +13,14 @@ public class Floor extends Thread {
 	int floorNumber;
 	Scheduler scheduler;
 	private ArrayList<InputEvents> events;
-	private ElevatorButton elevatorButtons[] = new ElevatorButton[5] ;
+	private FloorButton floorButtons[];
  	
 	public Floor(int floorNumber, Scheduler scheduler) {
 		this.floorNumber = floorNumber;
 		this.scheduler = scheduler;
 		this.events = new ArrayList<InputEvents>();
+		
+		floorButtons = new FloorButton[] { new FloorButton(), new FloorButton()};
 	}
 	
 	public int getFloorNumber() {
@@ -52,7 +53,14 @@ public class Floor extends Thread {
 		while(true) {
 			
 			while(!events.isEmpty()) {
-				sendEvent(events.remove(0));
+				InputEvents ev = events.remove(0);
+				sendEvent(ev);
+				
+				if(ev.isGoingUp()) {
+					floorButtons[1].pressButton();
+				} else {
+					floorButtons[0].pressButton();
+				}
 			}
 			scheduler.elevatorIsApproaching(floorNumber);
 		}

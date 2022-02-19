@@ -158,24 +158,7 @@ public class ElevatorCar extends Thread {
 			}
 			
 			moveFloor();
-			
-			
-			/*
-			System.out.println("\nElevator received event");
-			System.out.println("moving to starting floor " + currentEvent.getInitialFloor());
-			
-			moveFloor(currentEvent.getInitialFloor());
-			
-			System.out.println("arrived at starting floor. moving to floor " + currentEvent.getDestinationFloor());
-			
-			moveFloor(currentEvent.getDestinationFloor());
-			
-			System.out.println("arrived at destination floor " + currentEvent.getDestinationFloor());
-			
-			setIsActive(false);
-			currentEvent = null;
-			*/
-			
+		
 		}
 	}
 }

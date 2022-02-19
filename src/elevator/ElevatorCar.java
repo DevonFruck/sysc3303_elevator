@@ -1,6 +1,11 @@
+package elevator;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
+import scheduler.Scheduler;
+import types.InputEvents;
+import types.motorStat;
 
 /**
  * @author Group
@@ -15,7 +20,8 @@ public class ElevatorCar extends Thread {
 	InputEvents currentEvent;
 	Scheduler scheduler;
 	int currentFloor;
-	int motor;
+	//int motor;
+	ElevatorMotor motor = new ElevatorMotor();
 	
 	// Directions for elevatorCar motor
 	int IDLE = 0;
@@ -34,7 +40,7 @@ public class ElevatorCar extends Thread {
 		this.scheduler = scheduler;
 		currentFloor = 1;
 		isDoorOpen = false;
-		motor = IDLE;
+		motor.setStatus(motorStat.IDLE);
 	}
 	
 	/**
@@ -54,10 +60,10 @@ public class ElevatorCar extends Thread {
 	// Add a floor for the elevator to visit
 	public boolean addFloor(int floor[]) {
 	  
-	   if (motor == DOWN && floor[0] > currentFloor)
+	   if (motor.getStatus() == motorStat.DOWN && floor[0] > currentFloor)
 	      return false;
 	   
-	   else if (motor == UP && floor[0] < currentFloor)
+	   else if (motor.getStatus() == motorStat.UP && floor[0] < currentFloor)
 	      return false;
 	   
 	   if (!floors.contains(floor[0]))
@@ -65,10 +71,10 @@ public class ElevatorCar extends Thread {
 	   if (!floors.contains(floor[1]))
 	      floors.add(floor[1]);
 	   
-	   if(motor == UP) {
+	   if(motor.getStatus() == motorStat.UP) {
 	      Collections.sort(floors);
 	   }
-	   else if (motor == DOWN) {
+	   else if (motor.getStatus() == motorStat.DOWN) {
 	      Collections.reverse(floors);
 	   }
 	   return true;
@@ -92,6 +98,10 @@ public class ElevatorCar extends Thread {
 		return isActive;
 	}
 	
+	public ElevatorMotor getMotor() {
+		return motor;
+	}
+	
 	/**
 	 * Setter for setting the active state of elevator.
 	 * 
@@ -99,14 +109,6 @@ public class ElevatorCar extends Thread {
 	 */
 	public void setIsActive(boolean val) {
 	   isActive = val;
-	}
-	
-	/**
-	 * Getter for the activity of the elevator motor
-	 * @return 0 for idle, 1 for up, 2 for down.
-	 */
-	public int getMotor() {
-	   return motor;
 	}
 	
 	/**
@@ -119,20 +121,20 @@ public class ElevatorCar extends Thread {
 		while(floors.size() > 0) {
 			try {
 				if(floors.get(0) == currentFloor) {
-				    motor = IDLE;
+				    motor.setStatus(motorStat.IDLE);
 				    floors.remove(0);
 				    System.out.println("Arrived at a dest floor: " + currentFloor);
 				}
 				
 				else if(floors.get(0) > currentFloor) {
-				    motor = UP;
+				    motor.setStatus(motorStat.UP);
 					Thread.sleep(2000);
 					currentFloor += 1;
 					System.out.println("Moved up to floor " + currentFloor);
 				} 
 				
 				else {
-				    motor = DOWN;
+				    motor.setStatus(motorStat.DOWN);
 					Thread.sleep(2000);	
 					currentFloor -= 1;
 					System.out.println("Moved down to floor: " + currentFloor);

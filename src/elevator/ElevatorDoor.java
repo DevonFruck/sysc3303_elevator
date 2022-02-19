@@ -1,3 +1,4 @@
+package elevator;
 /**
  * This ElevatorDoor class is for controlling opening and closing of elevator doors
  * @author Group

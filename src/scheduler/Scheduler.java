@@ -1,4 +1,11 @@
+package scheduler;
+
 import java.util.ArrayList;
+
+import elevator.ElevatorCar;
+import floorSubsystem.Floor;
+import types.InputEvents;
+import types.motorStat;
 
 /**
  * 
@@ -87,7 +94,6 @@ public class Scheduler extends Thread {
 	}
 	
 	public void run() {
-	   System.out.println("scheduler");
 	   while(true) {
 	      
 	      InputEvents latestEvent = getLatestEvent();
@@ -95,12 +101,12 @@ public class Scheduler extends Thread {
 	      
 	      //eventsQueue has an item
 	      for(ElevatorCar elev: elevatorList) {
-	         if(elev.motor.getStatus() == motorStat.UP && latestEvent.isGoingUp()) {
+	         if(elev.getMotor().getStatus() == motorStat.UP && latestEvent.isGoingUp()) {
 	            if (elev.addFloor(eventFloors)) {
 	               break;
 	            }
 	         }
-	         else if (elev.motor.getStatus() == motorStat.IDLE || elev.motor.getStatus() == motorStat.DOWN && !latestEvent.isGoingUp()) {
+	         else if (elev.getMotor().getStatus() == motorStat.IDLE || elev.getMotor().getStatus() == motorStat.DOWN && !latestEvent.isGoingUp()) {
 	            if (elev.addFloor(eventFloors))
                    break;
 	         }

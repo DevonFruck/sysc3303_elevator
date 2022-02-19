@@ -1,3 +1,5 @@
+package elevator;
+import types.motorStat;
 
 public class ElevatorMotor {
 	

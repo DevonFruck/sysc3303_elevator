@@ -1,6 +1,11 @@
+package elevator;
+
 import java.util.ArrayList;
 import java.util.Collections;
 
+import scheduler.Scheduler;
+import types.InputEvents;
+import types.motorStat;
 
 /**
  * @author Group
@@ -91,6 +96,10 @@ public class ElevatorCar extends Thread {
 	 */
 	public boolean getIsActive() {
 		return isActive;
+	}
+	
+	public ElevatorMotor getMotor() {
+		return motor;
 	}
 	
 	/**

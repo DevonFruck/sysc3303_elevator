@@ -1,3 +1,4 @@
+package elevator;
 /**
  * This ElevatorLamp class is for turning on and off the elevator lamps and checking elevator floor number
  * @author Group

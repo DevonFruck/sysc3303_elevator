@@ -1,3 +1,4 @@
+package types;
 
 public enum motorStat {
 	IDLE,

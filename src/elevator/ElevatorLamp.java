@@ -14,7 +14,7 @@ public class ElevatorLamp {
 	 * takes input floor number and set the Elevator lamp as the number
 	 * @param int floorNum
 	 */
-	private ElevatorLamp(int floorNum){
+	public ElevatorLamp(int floorNum){
 		this.floorNum = floorNum;
 	}
 	

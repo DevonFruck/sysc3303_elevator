@@ -1,9 +1,9 @@
-package tests;
+package test;
  
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
-import elevatorSubsystem.ElevatorLamp;
+import elevator.ElevatorLamp;
 
 class ElevatorLampTest {
 	

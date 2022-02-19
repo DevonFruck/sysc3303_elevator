@@ -8,7 +8,7 @@ import elevator.ElevatorDoor;
 class ElevatorDoorTest {
 	
 	@Test
-	void testDoorOpening() throws InterruptedException {
+	void testDoor() throws InterruptedException {
 		//Create a Elevator Door
 		ElevatorDoor door = new ElevatorDoor();
 

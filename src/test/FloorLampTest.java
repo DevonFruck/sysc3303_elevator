@@ -3,27 +3,24 @@ package test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import floorSubsystem.FloorLamp;
-import dataSystems.ElevatorDirection;
 
 class FloorLampTest {
 	
 	@Test
 	void testFloorLamp() throws InterruptedException {
 		//Create a Floor Lamp for floor #1's up direction
-		FloorLamp lamp = new FloorLamp(1, ElevatorDirection.Up);
+		FloorLamp lamp = new FloorLamp();
 		
-		//Turn the lamp on
-		lamp.turnOn();
-		//Check to see that the lamp is on
-		assertTrue(lamp.isOn());
-		
-		//Turn the lamp off
-		lamp.turnOff();
-		//Check to see that the lamp is off
-		assertFalse(lamp.isOn());
-		
-		//Check to see that the lamps direction is up
-		assertEquals(ElevatorDirection.Up, lamp.getLampDirection());
+		// verify the default status of the lamp
+		assertEquals(false, lamp.getLampStatus());
+
+		//Turn the lamp on and verify the status that it is on is true
+		lamp.turnLampOn();
+		assertEquals(true, lamp.getLampStatus());
+
+		//Turn the lamp on and verify the status that it is on is true
+		lamp.turnLampOff();
+		assertEquals(false, lamp.getLampStatus());
 		
 	}
 }

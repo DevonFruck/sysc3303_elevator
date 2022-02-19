@@ -1,6 +1,7 @@
 package floorSubsystem;
 import java.util.ArrayList;
 
+import elevator.ElevatorButton;
 import scheduler.Scheduler;
 import types.InputEvents;
 
@@ -13,7 +14,8 @@ public class Floor extends Thread {
 	int floorNumber;
 	Scheduler scheduler;
 	private ArrayList<InputEvents> events;
-	
+	private ElevatorButton elevatorButtons[] = new ElevatorButton[5] ;
+ 	
 	public Floor(int floorNumber, Scheduler scheduler) {
 		this.floorNumber = floorNumber;
 		this.scheduler = scheduler;

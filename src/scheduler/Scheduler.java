@@ -1,6 +1,7 @@
 package scheduler;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import elevator.ElevatorCar;
 import floorSubsystem.Floor;
@@ -16,32 +17,51 @@ import types.motorStat;
  *
  */
 public class Scheduler extends Thread {
+   
+    final int numOfElevators = 1;
+    final int numOfFloors = 10;
 	
-	ArrayList<InputEvents> eventsQueue;
-	ArrayList<ElevatorCar> elevatorList;
+	//ArrayList<InputEvents> eventsQueue;
+	ArrayList<ElevatorCar> elevatorList = new ArrayList<ElevatorCar>();
+	ArrayList<Floor> floorList = new ArrayList<Floor>();
+	
+	//Stops for each elevator
+	ArrayList<ArrayList<Integer>> elevatorStops = new ArrayList<ArrayList<Integer>>(numOfElevators);
+	
+	// Event queues for going up and down
+	ArrayList<InputEvents> downQueue = new ArrayList<InputEvents>();
+	ArrayList<InputEvents> upQueue = new ArrayList<InputEvents>();
 	
 	public Scheduler() {
-		eventsQueue = new ArrayList<InputEvents>();
+		//eventsQueue = new ArrayList<InputEvents>();
 		
-		Thread[] floors = new Thread[2];
-		floors[0] = new Thread(new Floor(1, this), "floor1");
-		floors[1] = new Thread(new Floor(2, this), "floor2");
-		
-		elevatorList = new ArrayList<ElevatorCar>();
-		elevatorList.add(new ElevatorCar(this));
-		
-		for(int i=0; i<floors.length; i++) {
-			floors[i].start();
+		// Initialize Floors
+		for(int i=1; i<=numOfFloors; i++) {
+           floorList.add(new Floor(i, this));
+        }
+        for(Thread floor: floorList) {
+           floor.start();
+        }
+       
+       
+        //Initialize Elevators
+		for(int i=1; i<=numOfElevators; i++) {
+			elevatorList.add(new ElevatorCar(this));
 		}
-			
 		for(Thread elevator: elevatorList) {
-			elevator.start();
-		}
+           elevator.start();
+       }
 	}
 	
 	// Adds events to queue from floor subsystem
-	public synchronized void addEvent(InputEvents InputEventsEvent) {
-		eventsQueue.add(InputEventsEvent);
+	public synchronized void addEvent(InputEvents request) {
+		if (request.isGoingUp()) {
+		   upQueue.add(request);
+		} else {
+		   downQueue.add(request);
+		}
+	   
+	   //eventsQueue.add(InputEventsEvent);
 		notifyAll();
 	}
 	
@@ -59,59 +79,43 @@ public class Scheduler extends Thread {
 		return false;
 	}
 	
-	// Function for elevator, elevators will poll for 
-	// available events when inactive
-	public synchronized InputEvents getElevatorEvent() {
-		while(eventsQueue.isEmpty()) {
-			try {
-				wait();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		
-		InputEvents event = eventsQueue.remove(0);
-		notifyAll();
-		return event;
-	}
 	
 	public synchronized boolean setFloorLights(int floorNum) {
 		return false;
 	}
 	
-	// Gets an event to be passed to an elevator
 	public synchronized InputEvents getLatestEvent() {
-	   while(eventsQueue.size() == 0) {
+	   while(upQueue.size()==0 & downQueue.size()==0) {
 	      try {
-             wait();
+	         wait();
           } catch (InterruptedException e) {
              // TODO Auto-generated catch block
              e.printStackTrace();
           }
 	   }
-	   return eventsQueue.remove(0);
+	   
+	   if(upQueue.size() >= downQueue.size()) {
+	      return upQueue.remove(0);
+	   } else {
+	      return downQueue.remove(0);
+	   }
 	}
 	
 	public void run() {
-	   while(true) {
-	      
-	      InputEvents latestEvent = getLatestEvent();
-	      int eventFloors[] = {latestEvent.getInitialFloor(), latestEvent.getDestinationFloor()};
-	      
-	      //eventsQueue has an item
-	      for(ElevatorCar elev: elevatorList) {
-	         if(elev.getMotor().getStatus() == motorStat.UP && latestEvent.isGoingUp()) {
-	            if (elev.addFloor(eventFloors)) {
-	               break;
-	            }
-	         }
-	         else if (elev.getMotor().getStatus() == motorStat.IDLE || elev.getMotor().getStatus() == motorStat.DOWN && !latestEvent.isGoingUp()) {
-	            if (elev.addFloor(eventFloors))
-                   break;
-	         }
-	      }
-	   }
+	   
+	   InputEvents ev = getLatestEvent();
+	   
+	   
+
+	}
+	
+	public synchronized void waiting() {
+	   try {
+	      wait();
+       } catch (InterruptedException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+       }
 	}
 	
 	/**

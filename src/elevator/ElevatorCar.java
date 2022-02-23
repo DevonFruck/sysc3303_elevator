@@ -159,7 +159,7 @@ public class ElevatorCar extends Thread {
 	public void run() {
 		while(true) {
 			while(floors.isEmpty()) {
-				currentEvent = scheduler.getElevatorEvent();
+				//currentEvent = scheduler.getElevatorEvent();
 				int eventFloors[] = {currentEvent.getInitialFloor(), currentEvent.getDestinationFloor()};
 				addFloor(eventFloors);
 				isActive = true;

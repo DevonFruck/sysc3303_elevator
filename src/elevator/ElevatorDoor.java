@@ -5,7 +5,7 @@ package elevator;
  */
 
 public class ElevatorDoor {
-	
+    
 	private boolean doorStatus;
 	/**
 	 * ElevatorDoor constructor

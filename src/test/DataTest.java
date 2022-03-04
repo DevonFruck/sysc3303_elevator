@@ -1,9 +1,17 @@
+package test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
 
 import org.junit.jupiter.api.Test;
+
+import elevator.ElevatorCar;
+import floorSubsystem.Floor;
+import scheduler.Scheduler;
+import types.EventsHandler;
+import types.InputEvents;
 
 /**
  * Junit testing for the all the data to be read in the system.
@@ -54,8 +62,6 @@ class DataTest{
         ElevatorCar elevatorCar = new ElevatorCar(scheduler);
     	assertNull(elevatorCar.getCurrentEvent());
         assertEquals(1, elevatorCar.getCurrentFloor());
-        elevatorCar.moveFloor(2);
-        assertEquals(2, elevatorCar.getCurrentFloor());
         // Validating the elevator is not active by default
         assertFalse(elevatorCar.getIsActive()); 
     }

@@ -1,14 +1,13 @@
 package elevator;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import scheduler.Scheduler;
 import types.InputEvents;
 import types.motorStat;
 
 /**
- * @author Group
+ * @author L4 Group 9
  *
  */
 public class ElevatorCar extends Thread {
@@ -16,6 +15,7 @@ public class ElevatorCar extends Thread {
     // floors the elevator must visit
 	ArrayList<Integer> floors = new ArrayList<Integer>();
 	
+	int id;
 	boolean isActive, isDoorOpen;
 	InputEvents currentEvent;
 	Scheduler scheduler;
@@ -24,10 +24,6 @@ public class ElevatorCar extends Thread {
 	
 	ElevatorMotor motor = new ElevatorMotor();
 	
-	// Directions for elevatorCar motor
-	int IDLE = 0;
-	int UP = 1;
-	int DOWN = 2;
 	
 	/**
 	 * Constructor for the ElevatorCar class.
@@ -35,7 +31,8 @@ public class ElevatorCar extends Thread {
 	 * 
 	 * @param scheduler The elevator scheduler the class interacts with.
 	 */
-	public ElevatorCar(Scheduler scheduler) {
+	public ElevatorCar(Scheduler scheduler, int id) {
+	    this.id = id;
 		isActive = false;
 		currentEvent = null;
 		this.scheduler = scheduler;
@@ -62,32 +59,6 @@ public class ElevatorCar extends Thread {
 	   return floors.get(floors.size()-1);
 	}
 	
-	// Add a floor for the elevator to visit
-	public boolean addFloor(int floor[]) {
-	  
-	   if (motor.getStatus() == motorStat.DOWN && floor[0] > currentFloor)
-	      return false;
-	   
-	   else if (motor.getStatus() == motorStat.UP && floor[0] < currentFloor)
-	      return false;
-	   
-	   if (!floors.contains(floor[0]))
-	      floors.add(floor[0]);
-	   if (!floors.contains(floor[1]))
-	      floors.add(floor[1]);
-	   
-	   if(motor.getStatus() == motorStat.UP) {
-	      Collections.sort(floors);
-	   }
-	   else if (motor.getStatus() == motorStat.DOWN) {
-	      Collections.reverse(floors);
-	   }
-	   
-	   // Turn on button lights for destination floor
-	   elevButtons[floor[1]].pressButton();
-	   
-	   return true;
-	}
 	
 	/**
 	 * Getter for the elevator's current floor.
@@ -120,52 +91,48 @@ public class ElevatorCar extends Thread {
 	   isActive = val;
 	}
 	
+	
 	/**
-	 * moveFloor moves the elevator up and down floors
-	 * until the final destination is reached.
+	 * Incorporate the movement of the elevator. Depending on whether the floor
+	 * parameter is lower or higher than the current floor of the elevator, the
+	 * elevator will move up or down one floor, or signal the scheduler if it has
+	 * arrived.
 	 * 
-	 * @param floorEnd The destination floor.
+	 * @param nextFloor the floor number of the destination floor.
 	 */
-	public void moveFloor() {
-		while(floors.size() > 0) {
-			try {
-				if(floors.get(0) == currentFloor) {
-				    motor.setStatus(motorStat.IDLE);
-				    int destFloor = floors.remove(0);
-				    System.out.println("Arrived at a dest floor: " + currentFloor);
-				}
-				
-				else if(floors.get(0) > currentFloor) {
-				    motor.setStatus(motorStat.UP);
-					Thread.sleep(2000);
-					currentFloor += 1;
-					System.out.println("Moved up to floor " + currentFloor);
-				} 
-				
-				else {
-				    motor.setStatus(motorStat.DOWN);
-					Thread.sleep(2000);	
-					currentFloor -= 1;
-					System.out.println("Moved down to floor: " + currentFloor);
-				}
-				
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
+	public void elevatorMovement(int nextFloor) {
+	   if(currentFloor == nextFloor) {
+	      isDoorOpen = true;
+	      System.out.println("made it!");
+	      scheduler.elevatorArrived(id);
+	      // Send to scheduler that we made it
+	      return;
+	   }
+	   
+	   try {
+	      Thread.sleep(5000);
+       } catch (InterruptedException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+       }
+	   
+	   if(nextFloor > currentFloor) {
+	      motor.setStatus(motorStat.UP);
+	      currentFloor ++;
+	   } else {
+	      motor.setStatus(motorStat.DOWN);
+	      currentFloor --;
+	   }
+	   
+	   System.out.printf("Elevator %d at floor: %d\n", id, currentFloor);
 	}
-
+	
+	
 	@Override
 	public void run() {
 		while(true) {
-			while(floors.isEmpty()) {
-				currentEvent = scheduler.getElevatorEvent();
-				int eventFloors[] = {currentEvent.getInitialFloor(), currentEvent.getDestinationFloor()};
-				addFloor(eventFloors);
-				isActive = true;
-			}
-			
-			moveFloor();
+		    int nextFloor = scheduler.getNextDest(id);
+		    elevatorMovement(nextFloor);
 		}
 	}
 }

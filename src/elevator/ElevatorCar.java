@@ -1,5 +1,6 @@
 package elevator;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import scheduler.Scheduler;
@@ -58,6 +59,25 @@ public class ElevatorCar extends Thread {
 	   return floors.get(floors.size()-1);
 	}
 	
+	public void receiveEvent() throws IllegalArgumentException{
+		String data[];
+		try {
+			data = subsys.getFromScheduler();
+			if (Integer.parseInt(data[0]) != this.id){
+				throw new IllegalArgumentException("Data sent to wrong elevator");
+			}
+			int floorNum = Integer.parseInt(data[1]);
+			//U,D,I,O
+			String state = data[2];
+			this.elevatorMovement(floorNum);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+
+	}
 	
 	/**
 	 * Getter for the elevator's current floor.
@@ -103,7 +123,6 @@ public class ElevatorCar extends Thread {
 	   if(currentFloor == nextFloor) {
 	      isDoorOpen = true;
 	      System.out.println("made it!");
-	      scheduler.elevatorArrived(id);
 	      // Send to scheduler that we made it
 	      return;
 	   }
@@ -130,8 +149,8 @@ public class ElevatorCar extends Thread {
 	@Override
 	public void run() {
 		while(true) {
-		    int nextFloor = scheduler.getNextDest(id);
-		    elevatorMovement(nextFloor);
+			this.receiveEvent();		
+			
 		}
 	}
 }

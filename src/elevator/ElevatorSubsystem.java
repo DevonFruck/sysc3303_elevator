@@ -45,7 +45,18 @@ public class ElevatorSubsystem {
            elevator.start();
         }
     }
+    /*
+        Parses the data to send to Elevator car
+    */
+    public String[] parseData(String scheduler_data){
+        String[] tokens = scheduler_data.split(",");
+
+        return tokens;
+
+    }
     
+
+
     public void sendToScheduler() throws IOException {
         byte data[] = new String("test").getBytes();
         DatagramPacket sendPacket = new DatagramPacket(data, data.length, ip, 50);
@@ -53,12 +64,18 @@ public class ElevatorSubsystem {
         socket.send(sendPacket);
     }
     
-    public void getFromScheduler() throws IOException {
+    public String[] getFromScheduler() throws IOException {
         byte data[] = new byte[100];
         DatagramPacket receivePacket = new DatagramPacket(data, data.length);
         socket.receive(receivePacket);
+        return this.parseData(receivePacket.getData().toString());
     }
     
+    public void sendtoElevator(String[] data){
+        int elevatorNumber = Integer.parseInt(data[0]);
+
+    }
+
     public static void main(String[] args) {
         // TODO Auto-generated method stub
         

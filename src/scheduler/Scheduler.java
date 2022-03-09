@@ -44,7 +44,7 @@ public class Scheduler extends Thread {
            floor.start();
         }
        
-       
+       /*
         //Initialize Elevators
         for(int i=0; i<numOfElevators; i++) {
             elevatorList.add(new ElevatorCar(this, i));
@@ -52,6 +52,7 @@ public class Scheduler extends Thread {
         for(Thread elevator: elevatorList) {
            elevator.start();
         }
+		*/
 	}
 	
 	/**

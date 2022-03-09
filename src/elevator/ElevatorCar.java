@@ -18,12 +18,11 @@ public class ElevatorCar extends Thread {
 	int id;
 	boolean isActive, isDoorOpen;
 	InputEvents currentEvent;
-	Scheduler scheduler;
+	ElevatorSubsystem subsys;
 	int currentFloor;
 	ElevatorButton elevButtons[] = new ElevatorButton[5];
 	
 	ElevatorMotor motor = new ElevatorMotor();
-	
 	
 	/**
 	 * Constructor for the ElevatorCar class.
@@ -31,16 +30,16 @@ public class ElevatorCar extends Thread {
 	 * 
 	 * @param scheduler The elevator scheduler the class interacts with.
 	 */
-	public ElevatorCar(Scheduler scheduler, int id) {
+	public ElevatorCar(ElevatorSubsystem subsys, int id) {
 	    this.id = id;
 		isActive = false;
 		currentEvent = null;
-		this.scheduler = scheduler;
+		this.subsys = subsys;
 		currentFloor = 1;
 		isDoorOpen = false;
 		motor.setStatus(motorStat.IDLE);
 		
-		for (int i=0; i<5; i++) {			
+		for (int i=0; i<5; i++) {
 			elevButtons[i] = new ElevatorButton(i+1);
 		}
 	}

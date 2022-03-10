@@ -59,24 +59,20 @@ public class ElevatorCar extends Thread {
 	   return floors.get(floors.size()-1);
 	}
 	
-	public void receiveEvent() throws IllegalArgumentException{
-		String data[];
-		try {
-			data = subsys.getFromScheduler();
-			if (Integer.parseInt(data[0]) != this.id){
-				throw new IllegalArgumentException("Data sent to wrong elevator");
-			}
-			int floorNum = Integer.parseInt(data[1]);
-			//U,D,I,O
-			String state = data[2];
-			this.elevatorMovement(floorNum);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-
+	public void receiveEvent() throws IllegalArgumentException, IOException {
+//		String data[];
+//		data = subsys.getFromScheduler();
+//		
+//        if (Integer.parseInt(data[0]) != this.id) {
+//        	throw new IllegalArgumentException("Data sent to wrong elevator");
+//        }
+//        
+//        int floorNum = Integer.parseInt(data[1]);
+//        //U,D,I,O
+//        String state = data[2];
+//        this.elevatorMovement(floorNum);
+		int floor = subsys.getNextFloor(this.id);
+		elevatorMovement(floor);
 	}
 	
 	/**
@@ -124,6 +120,7 @@ public class ElevatorCar extends Thread {
 	      isDoorOpen = true;
 	      System.out.println("made it!");
 	      // Send to scheduler that we made it
+	      //TODO: update scheduler of our position
 	      return;
 	   }
 	   
@@ -149,7 +146,12 @@ public class ElevatorCar extends Thread {
 	@Override
 	public void run() {
 		while(true) {
-			this.receiveEvent();		
+			try {
+                this.receiveEvent();
+            } catch (IllegalArgumentException | IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
 			
 		}
 	}

@@ -101,7 +101,7 @@ public class ElevatorSubsystem implements Runnable {
 
     public void sendToScheduler(int floornum, String state) throws IOException {
         String newFloor = Integer.toString(floornum);
-        String send_Data = newFloor+ state;
+        String send_Data = newFloor+ "," + state;
 
         byte data[] = send_Data.getBytes();
         DatagramPacket sendPacket = new DatagramPacket(data, data.length, ip, 50);

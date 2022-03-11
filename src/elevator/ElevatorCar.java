@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import scheduler.Scheduler;
 import types.InputEvents;
 import types.motorStat;
-
+import elevator.ElevatorSubsystem;
 /**
  * @author L4 Group 9
  *
@@ -119,8 +119,19 @@ public class ElevatorCar extends Thread {
 	   if(currentFloor == nextFloor) {
 	      isDoorOpen = true;
 	      System.out.println("made it!");
+		  String data[];
+		  data = subsys.getFromScheduler();
+		
+          //U,D,I,O
+          String state = data[2];
 	      // Send to scheduler that we made it
 	      //TODO: update scheduler of our position
+		  try {
+			subsys.sendToScheduler(nextFloor, state);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	      return;
 	   }
 	   

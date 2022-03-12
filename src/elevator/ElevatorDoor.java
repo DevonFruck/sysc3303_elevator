@@ -25,6 +25,18 @@ public class ElevatorDoor {
 		this.doorStatus = true;
 	}
 	
+	public void openCloseDoor() {
+	    this.doorStatus = true;
+	    System.out.println("Elevator door open");
+	    try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+	    System.out.println("Elevator door close");
+	}
+	
 	/**
 	 * closeDoor
 	 * sets the elevator door status to false, close the elevator door

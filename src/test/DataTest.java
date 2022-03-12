@@ -11,6 +11,7 @@ import floorSubsystem.Floor;
 import scheduler.Scheduler;
 import types.EventsHandler;
 import types.InputEvents;
+import types.MotorState;
 import types.motorStat;
 
 /**
@@ -61,7 +62,7 @@ class DataTest{
         
         ElevatorCar elevator = new ElevatorCar(scheduler, 0);
         
-        assertEquals(motorStat.IDLE, elevator.getMotor().getStatus());
+        assertEquals(MotorState.IDLE, elevator.getMotor().getStatus());
         
     }
 

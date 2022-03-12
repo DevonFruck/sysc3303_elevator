@@ -10,7 +10,10 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 
-import types.motorStat;
+import scheduler.ElevatorSchedulerThread;
+import scheduler.Scheduler;
+import types.MessageParser;
+import types.MotorState;
 
 import static config.Config.NUM_OF_ELEVATORS;
 /**
@@ -18,6 +21,8 @@ import static config.Config.NUM_OF_ELEVATORS;
  *
  */
 public class ElevatorSubsystem implements Runnable {
+	private Scheduler scheduler;
+	
     ElevatorCar elevatorList[] = new ElevatorCar[NUM_OF_ELEVATORS];
     
     DatagramPacket receivePacket, sendPacket;
@@ -32,8 +37,9 @@ public class ElevatorSubsystem implements Runnable {
     /**
      * @param args
      */
-    public ElevatorSubsystem() throws SocketException {
+    public ElevatorSubsystem(Scheduler scheduler) throws SocketException {
         try {
+        	this.scheduler = scheduler;
             ip = InetAddress.getByName("127.0.0.1");
         } catch (UnknownHostException e) {
             // TODO Auto-generated catch block
@@ -78,7 +84,7 @@ public class ElevatorSubsystem implements Runnable {
     }
     
     
-    motorStat getElevatorState(int id) {
+    MotorState getElevatorState(int id) {
         try {
             while(nextFloor[id] == 0) {
                 wait();
@@ -109,7 +115,7 @@ public class ElevatorSubsystem implements Runnable {
         socket.send(sendPacket);
     }
     
-    public String[] getFromScheduler() {
+    public byte[] getFromScheduler() {
         try {
             byte data[] = new byte[100];
             DatagramPacket receivePacket = new DatagramPacket(data, data.length);
@@ -117,8 +123,8 @@ public class ElevatorSubsystem implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        
-        return this.parseData(receivePacket.getData().toString());
+//        return this.parseData(receivePacket.getData().toString());
+        return (receivePacket.getData());
     }
     
     
@@ -126,18 +132,24 @@ public class ElevatorSubsystem implements Runnable {
     public void run() {
         // TODO Auto-generated method stub
         while (true) {
-            
             //Assuming data[0] is ID and data[1] is the next floor
-            String data[] = getFromScheduler();
-            setNextFloor(Integer.parseInt(data[0]), Integer.parseInt(data[1]));
+            byte[] data = getFromScheduler();
+//            setNextFloor(Integer.parseInt(data[0]), Integer.parseInt(data[1]));
+            
+			String request = new String(data);
+			MessageParser parsed = new MessageParser(request);
+			System.out.println("From Scheduler: successfully parsed request from elevator with address " + receivePacket.getAddress() + ", port " + receivePacket.getPort());
+			ElevatorSchedulerThread subElevThread = new ElevatorSchedulerThread(parsed, receivePacket.getAddress(), receivePacket.getPort(), this.scheduler);
+			subElevThread.start();
+			
         }
     }
     
     public static void main(String[] args) {
-        try {
-            ElevatorSubsystem subsys = new ElevatorSubsystem();
-        } catch (SocketException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            ElevatorSubsystem subsys = new ElevatorSubsystem();
+//        } catch (SocketException e) {
+//            e.printStackTrace();
+//        }
     }
 }

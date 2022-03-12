@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import scheduler.Scheduler;
 import types.InputEvents;
-import types.motorStat;
+import types.MotorState;
 
 /**
  * @author L4 Group 9
@@ -83,15 +83,15 @@ public class Floor extends Thread {
     }
 
     public void receiveEvent() throws IllegalArgumentException {
-        motorStat state;
+        MotorState state;
         try {
             state = subsys.getElevatorArrived(this.floorNumber-1);
             
-            if(state == motorStat.DOWN) {
+            if(state == MotorState.DOWN) {
                 floorButtons[1].pressButton();
             }
             
-            else if(state == motorStat.UP) {
+            else if(state == MotorState.UP) {
                 floorButtons[0].pressButton();
             }
               

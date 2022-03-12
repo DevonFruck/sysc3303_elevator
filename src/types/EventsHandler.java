@@ -13,6 +13,8 @@ public class EventsHandler implements InputEvents {
 	private int initialFloor; //Initial floor, floor that requested the elevator
 	private boolean isUp; //Direction of elevator movement
 	private int destinationFloor;//Destination of the elevator/user
+	private boolean isElevatorTaken;//Is elevator taken
+	private MotorState motorState;
 	
 	/**
 	 * EventsHandler constructor
@@ -24,7 +26,7 @@ public class EventsHandler implements InputEvents {
 		String[] inputs = input.split(",");
 		this.time = LocalTime.parse(inputs[0]);
 		this.initialFloor = Integer.valueOf(inputs[1]);
-		this.isUp = inputs[2].equalsIgnoreCase("Up");
+		this.motorState = inputs[2].equalsIgnoreCase("up") ? MotorState.UP : MotorState.DOWN;
 		this.destinationFloor = Integer.valueOf(inputs[3]);
 	}
 
@@ -84,5 +86,20 @@ public class EventsHandler implements InputEvents {
 	@Override
 	public String toString() {
 		return "Time: " + time + "\nFloor: " + initialFloor + "\nFloor-button: " + (isUp ? "Up" : "Down") + "\nDestination: " + destinationFloor + "\n";
+	}
+
+	@Override
+	public MotorState getMotorState() {
+		return this.motorState;
+	}
+
+	@Override
+	public boolean isElevatorTaken() {
+		return this.isElevatorTaken;
+	}
+
+	@Override
+	public void elevatorTakeEvent() {
+		this.isElevatorTaken=true;
 	}
 }

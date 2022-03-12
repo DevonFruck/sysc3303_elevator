@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 import scheduler.Scheduler;
 import types.InputEvents;
-import types.motorStat;
+import types.MotorState;
 import elevator.ElevatorSubsystem;
 /**
  * @author L4 Group 9
@@ -38,7 +38,7 @@ public class ElevatorCar extends Thread {
 		this.subsys = subsys;
 		currentFloor = 1;
 		isDoorOpen = false;
-		motor.setStatus(motorStat.IDLE);
+		motor.setStatus(MotorState.IDLE);
 		
 		for (int i=0; i<5; i++) {
 			elevButtons[i] = new ElevatorButton(i+1);
@@ -121,6 +121,7 @@ public class ElevatorCar extends Thread {
 	      System.out.println("made it!");
 		  String data[];
 		  data = subsys.getFromScheduler();
+//		  data = subsys.parseData(getFromScheduler().toString());
 		
           //U,D,I,O
           String state = data[2];
@@ -143,10 +144,10 @@ public class ElevatorCar extends Thread {
        }
 	   
 	   if(nextFloor > currentFloor) {
-	      motor.setStatus(motorStat.UP);
+	      motor.setStatus(MotorState.UP);
 	      currentFloor ++;
 	   } else {
-	      motor.setStatus(motorStat.DOWN);
+	      motor.setStatus(MotorState.DOWN);
 	      currentFloor --;
 	   }
 	   

@@ -1,6 +1,6 @@
 package types;
 
-public enum motorStat {
+public enum MotorState {
 	IDLE,
 	UP,
 	DOWN

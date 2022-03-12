@@ -18,8 +18,15 @@ public interface InputEvents {
 	int getDestinationFloor();
 	//Boolean method that checks the elevator move direction true=up, false=down
 	boolean isGoingUp();
+	//Return elevator's state/moving direction
+	MotorState getMotorState();
 	//Boolean method to see if the error/fault is serious
 	boolean isSeriousError();
 	//Boolean method to see if the error/fault is trivial 
 	boolean isTrivialError();
+	//Is elevator taken
+	boolean isElevatorTaken();
+	//Take an event
+	void elevatorTakeEvent();
+	
 }

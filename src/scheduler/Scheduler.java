@@ -1,214 +1,172 @@
 package scheduler;
 
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import elevator.ElevatorCar;
+import elevator.ElevatorSubsystem;
 import floorSubsystem.Floor;
+import floorSubsystem.FloorSubsystem;
+import types.MotorState;
 import types.InputEvents;
-import types.motorStat;
-
 /**
- * @author L4 Group 9
+ * Scheduler Class
+ * This class is responsible for handling communication between floors and elevators
+ * This class initiates a sub-thread that is responsible for communications on the elevator side
+ * and a sub-thread responsible for communications on the floors side
  *
  */
-public class Scheduler extends Thread {
-   
-    public final int numOfElevators = 2;
-    public final int numOfFloors = 5;
-    
-    public ArrayList<ArrayList<Integer>> elevatorStops = new ArrayList<ArrayList<Integer>>(numOfElevators);
-	
-	ArrayList<InputEvents> eventsQueue = new ArrayList<InputEvents>();;
-	ArrayList<ElevatorCar> elevatorList = new ArrayList<ElevatorCar>();
-	
-	ArrayList<Floor> floorList = new ArrayList<Floor>();
+public class Scheduler {
+	//A queue that stores a list of requested events that came from floors
+	private LinkedList<InputEvents> events;
 	
 	/**
-	 * Constructor for the Scheduler class. Creates all floors and elevators
-	 * as threads and starts them.
+	 * Constructor for Scheduler
 	 */
 	public Scheduler() {
-	   
-	    // Initialize elevator stops ArrayList
-	    for(int j=0; j<numOfElevators; j++) {
-	       elevatorStops.add(new ArrayList<Integer>());
-	    }
-	   
-	    /*
-		// Initialize Floors
-        for(int i=1; i<=numOfFloors; i++) {
-           floorList.add(new Floor(i, this));
-        }
-        for(Thread floor: floorList) {
-           floor.start();
-        }
-       */
-       /*
-        //Initialize Elevators
-        for(int i=0; i<numOfElevators; i++) {
-            elevatorList.add(new ElevatorCar(this, i));
-        }
-        for(Thread elevator: elevatorList) {
-           elevator.start();
-        }
-		*/
+		this.events = new LinkedList<>();
 	}
 	
 	/**
-	 * Adds floor numbers from a floor request into an elevators active queue.
-	 * 
-	 * @param inputReq The floor request.
-	 * @param id The ID of the elevator.
-	 * @param goingUp Specifies if the elevator is going up or not.
+	 * Getter
+	 * @return this.events linked list object
 	 */
-	public synchronized void addToElev(InputEvents inputReq, int id, boolean goingUp) {
-	   ArrayList<Integer> stops = elevatorStops.get(id);
-	   
-	   // prevent duplicates in the list
-	   if (!stops.contains(inputReq.getInitialFloor()))
-	      stops.add(inputReq.getInitialFloor());
-	   if (!stops.contains(inputReq.getDestinationFloor()))
-	      stops.add(inputReq.getDestinationFloor());
-	   
-	   // Sort the list ascending or descending if elevator is going up or down
-	   if(goingUp) {
-	      System.out.println("going up!");
-	      Collections.sort(stops);
-	   } else {
-	      System.out.println("going down!");
-	      Collections.reverse(stops);
-	      //System.out.println(stops);
-	   }
-	   
-	   System.out.println("Elevator ID: " + id + " going " + elevatorList.get(id).getMotor().getStatus());
-	   System.out.println(stops);
-	}
-	
-	/**
-	 * Dummy function for the floor threads to idle. It is not required to
-	 * do anything after it issues its events until we implement UDP.
-	 */
-	public synchronized void floorWait() {
-	   try {
-          wait();
-       } catch (InterruptedException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-       }
-	}
-	
-	/**
-	 * Schedules the input request to an appropriate elevator.
-	 * 
-	 * @param inputReq The input request from a floor.
-	 */
-	public synchronized void planEvent(InputEvents inputReq) {
-	   for(int i=0; i<numOfElevators; i++) {
-	      ElevatorCar elev = elevatorList.get(i);
-	      
-	      if(elev.getMotor().getStatus() == motorStat.IDLE) {
-	         motorStat direction = inputReq.isGoingUp() ? motorStat.UP : motorStat.DOWN;
-	         
-	         elevatorList.get(i).getMotor().setStatus(direction);
-	         addToElev(inputReq, i, inputReq.isGoingUp());
-	         break;
-	      }
-	      
-	      else if(inputReq.isGoingUp() && elev.getMotor().getStatus() == motorStat.UP && elev.getCurrentFloor() < inputReq.getInitialFloor()) {
-	         addToElev(inputReq, i, true);
-	         break;
-	      }
-	      
-	      else if(!inputReq.isGoingUp() && elev.getMotor().getStatus() == motorStat.DOWN && elev.getCurrentFloor() > inputReq.getInitialFloor()) {
-	         addToElev(inputReq, i, false);
-	         break;
-	      }
-	   }
-	}
-	
-	/**
-	 * Adds an event to the waiting event queue.
-	 * 
-	 * @param inputReq Input request from a floor.
-	 */
-	public synchronized void addEvent(InputEvents inputReq) {
-		eventsQueue.add(inputReq);
+	public synchronized LinkedList<InputEvents> getEventsQueue() {
 		notifyAll();
+		return this.events;
 	}
 	
 	/**
-	 * Returns the floor number that the elevator with the passed
-	 * in ID must go to next.
-	 * 
-	 * @param id ID of the elevator.
-	 * @return floor number the elevator must go to next.
+	 * method that allows a floor to add an event to the events queue
+	 * @param event coming from the floor
+	 * @throws InterruptedException 
 	 */
-	public synchronized int getNextDest(int id) {
-	   while(elevatorStops.get(id).isEmpty()) {
-	      try {
-	         elevatorList.get(id).getMotor().setStatus(motorStat.IDLE);
-             wait();
-          } catch (InterruptedException e) {
-             // TODO Auto-generated catch block
-             e.printStackTrace();
-          }
-	   }
-	   return elevatorStops.get(id).get(0);
+	public synchronized void acceptEvent(InputEvents event) throws InterruptedException {
+		this.events.add(event);
+		notifyAll();
+				
+		// Wait until the event has been processed
+		while (this.events.contains(event)) {
+			wait();
+		}
 	}
 	
 	/**
-	 * Invoked by an ElevatorCar when it has arrived at its
-	 * destination floor.
-	 * 
-	 * @param id The ID of the ElevatorCar
+	 * This method is for changing the state of the floor to make it move or stay idle
+	 * @param currentFloor
+	 * @return MotorState (Up/Down/Idle)
+	 * @throws InterruptedException
 	 */
-	public synchronized void elevatorArrived(int id) {
-	   int currFloor = elevatorList.get(id).getCurrentFloor();
-	   
-	   if(elevatorStops.get(id).get(0) == currFloor) {
-	      elevatorStops.get(id).remove(0);
-	      floorList.get(currFloor-1).elevatorArrived();
-	      notifyAll();
-	   }
+	public synchronized MotorState seekWork(int currentFloor) throws InterruptedException {
+		while (events.size() == 0) {
+			wait();
+		}
+		
+		//Go through list of events and decide the new state of the elevator
+		for (InputEvents event: events) {
+			if (!event.isElevatorTaken()) {
+				event.elevatorTakeEvent();
+		        // If the elevator is already idle in the current floor, stay idle
+				if (event.getInitialFloor() == currentFloor) {
+					return MotorState.IDLE;
+				}
+				//Move to the next event from the queue, either up or down depending on the elevator's current floor
+				return currentFloor < event.getInitialFloor() ? MotorState.UP : MotorState.DOWN;	
+			}
+		}
+		//No events in the queue, stay Idle
+		return MotorState.IDLE;
 	}
-	
 	
 	/**
-	 * Returns the first element in the event queue. Event queue
-	 * refers to the events that haven't been assigned to an elevator.
-	 * @return
+	 * Look for events in the events queue that are coming from the floor we are currently at
+	 * @param currentFloor floor which elevator is currently at
+	 * @param elevDirection elevator's movement direction
+	 * @return True if current floor has an event in the same direction we are going
 	 */
-	public synchronized InputEvents getLatestEvent() {
-	   while(eventsQueue.isEmpty()) {
-	      try {
-	         wait();
-          } catch (InterruptedException e) {
-             // TODO Auto-generated catch block
-             e.printStackTrace();
-          }
-	   }
-	   
-	   return eventsQueue.remove(0);
+	public synchronized boolean lookupEvents(int currentFloor, MotorState elevDirection) throws InterruptedException {
+		return this.events.stream().anyMatch(event -> event.getMotorState() == elevDirection && event.getInitialFloor() == currentFloor + (elevDirection == MotorState.UP ? 1 : -1));
 	}
-	
-	
-	@Override
-	public void run() {
-	   while(true) {
-	      InputEvents request = getLatestEvent();
-	      planEvent(request);
-	   }
-	}
-	
 	
 	/**
-	 * The program begins here. Creates the scheduler.
-	 * @param args
+	 * Method for stopping at a floor and take an event from it
+	 * @param currentFloor
+	 * @param elevDirection direction of movement
+	 * @return e A list of taken events
+	 * @throws InterruptedException
 	 */
-	public static void main(String[] args) {
+	public synchronized List<InputEvents> stopAndTakeEvents(int currentFloor, MotorState elevDirection) throws InterruptedException {
+		List<InputEvents> e = this.events.stream().filter(event -> event.getMotorState() == elevDirection && event.getInitialFloor() == currentFloor + (elevDirection == MotorState.UP ? 1 : -1)).collect(Collectors.toList());
+		this.events.removeAll(e);
+		
+		//wake up any sleeping floor threads
+		notifyAll();
+		return e;
+	}
+	
+	/**
+	 * Method for finding the max destination floor
+	 * @param elevDirection
+	 * @return maxFloor, int representing the max destination floor level
+	 */
+	public synchronized int getMaxDestFloor(MotorState elevDirection) {
+		int maxFloor = 0;
+		for (InputEvents event: this.events) {
+			if ((event.getDestinationFloor() > maxFloor) && event.getMotorState() == elevDirection)
+				maxFloor = event.getDestinationFloor();
+		}
+		return maxFloor;
+	}
+	
+	/**
+	 * Method for finding the min destination floor
+	 * @param elevDirection
+	 * @return maxFloor, int representing the min destination floor level
+	 */
+	public synchronized int getMinDestFloor(MotorState elevDirection) {
+		int minFloor = 6; //Number of floors in building aka the highest floor
+		for (InputEvents event: this.events) {
+			if ((event.getDestinationFloor() < minFloor) && event.getMotorState() == elevDirection)
+				minFloor = event.getDestinationFloor();
+		}
+		return minFloor;
+	}
+	
+	/**
+	 * elevator removes the top element in the queue and return it to the elevator
+	 * @return first input event in the queue
+	 */
+    public synchronized InputEvents popTopEvent() {
+        InputEvents event = this.events.pop();
+        notifyAll();
+        return event;
+    }
+	
+	/**
+	 * Removes an event that is being executed by the elevator from the queue
+	 * @return A input event
+	 */
+	public synchronized InputEvents removeEvent(int floorNum) {
+		InputEvents event = null;// this.events.pop();
+		for (InputEvents e: events) {
+			if (e.isElevatorTaken() && e.getInitialFloor()==floorNum) {
+				event = e;
+				this.events.remove(e);
+			}
+		}
+		notifyAll();
+		return event;
+	}
+	
+	public static void main(String[] args) throws SocketException {
 		Scheduler scheduler = new Scheduler();
-		scheduler.start();
+		FloorSubsystem floorSub = new FloorSubsystem(scheduler);
+		ElevatorSubsystem elevatorSub = new ElevatorSubsystem(scheduler);
+//		floorSub.start();
+//		elevatorSub.start();
 	}
-
 }

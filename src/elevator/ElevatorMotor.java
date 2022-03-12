@@ -1,5 +1,5 @@
 package elevator;
-import types.motorStat;
+import types.MotorState;
 
 /**
  * This class is controlling Elevator up/down directions
@@ -7,13 +7,13 @@ import types.motorStat;
  */
 public class ElevatorMotor {
 	
-	private motorStat status;
+	private MotorState status;
 	/**
 	 * ElevatorMotor constructor
 	 * Defaults the elevator motor to idle 
 	 */
 	public ElevatorMotor() {
-		status = motorStat.IDLE;
+		status = MotorState.IDLE;
 	}
 	
 	/**
@@ -21,7 +21,7 @@ public class ElevatorMotor {
 	 * returns the status(enum) of elevator motor, up/down 
 	 * @return mortorStat
 	 */
-	public motorStat getStatus() {
+	public MotorState getStatus() {
 		return status;
 	}
 	
@@ -29,7 +29,7 @@ public class ElevatorMotor {
 	 * setStatus
 	 * set the status(enum) of elevator motor, up/down 
 	 */
-	public void setStatus(motorStat status) {
+	public void setStatus(MotorState status) {
 		this.status = status;
 	}
 }

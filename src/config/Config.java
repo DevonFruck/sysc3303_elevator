@@ -25,5 +25,6 @@ public final class Config {
     public static final String ELEVATOR_IP = "192.168.1.1";
     public static final String SCHEDULER_IP = "192.168.1.2";
     public static final String FLOOR_IP = "192.168.1.3";
+    public static final String DEFAULT = "127.0.0.1";
     
 }

@@ -7,6 +7,7 @@ import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,18 +15,19 @@ import types.InputEvents;
 import types.MessageParser;
 import types.MotorState;
 
+import static config.Config.*;
+
 /**
  * This thread is created for elevator request
  */
-public class ElevatorSchedulerThread extends Thread {
-//	private MessageParser parsedMessage;
-	private String message;
+public class ElevatorSchedulerThread extends Thread {	
+
 	private InetAddress sourceAdd;
 	private int sourcePort;
 	private Scheduler scheduler;
-	
-	private int actualCurrentFloor;
-	private boolean moreEvents;
+
+	private DatagramPacket receivePacket, sendPacket;
+	private DatagramSocket socket;
 
 	/**
 	 * Creates a thread for the elevator operation
@@ -34,177 +36,208 @@ public class ElevatorSchedulerThread extends Thread {
 	 * @param sourcePort The port making the request
 	 * @param scheduler The scheduler to make the request to
 	 */
-	public ElevatorSchedulerThread(InetAddress sourceAddress, int sourcePort, Scheduler scheduler) {
-		this.sourceAdd = sourceAddress;
-		this.sourcePort = sourcePort;
+	public ElevatorSchedulerThread(Scheduler scheduler) {
+		//		this.sourceAdd = sourceAddress;
+		//		this.sourcePort = sourcePort;
 		this.scheduler = scheduler;
-		
-		this.actualCurrentFloor = 0;
-		this.moreEvents = false;
+		try {
+			this.socket= new DatagramSocket(ELEVATOR_SCHEDULER_PORT);
+		} catch (SocketException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
-	
+
 	/**
 	 * This method calls the appropriate scheduler message and returns whatever needed via UDP 
 	 */
 	public void run() {
-		DatagramPacket sendPacket, receivePacket;
-		DatagramSocket socket;
-		int minFloorDestination = 0;
-		int maxFloorDestination = 0;
-		
-		int currentFloor;
-		MotorState currentState;
-		
-		
-		
-		try {
-			while (true) {
-				byte data[] = new byte[100];
+			while(true) {
+				byte[] data = new byte[100];
+
 				receivePacket = new DatagramPacket(data, data.length);
-				socket = new DatagramSocket();
-				socket.receive(receivePacket);
-	            String[] status = parseData(receivePacket.getData().toString());
-	            currentFloor = Integer.parseInt(status[0]);
-	            currentState = getState(status[1]);
-	            
-	            
-	            
-				if (MotorState.IDLE==currentState) {
-					MotorState direction = this.scheduler.seekWork(currentFloor);
-					this.finishRequest(direction.toString().getBytes());	
+				try {
+					socket.receive(receivePacket);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-				
-				//if the state goes from Stop to Stop, then that means that the elevator is currently
-				//at the same floor as the the floor the request was made from 
-				if (currentState == MotorState.IDLE) {
-					//if thats the case remove the first element from the schedules queue and add it to list of events to be completed
-					
-					
-				}
-				
-				//Travels upwards and checks on each level if there is any additional requests that it could take on
-				if (MotorState.UP==currentState) {
-					
-//					actualCurrentFloor = getLiveFloorUpdates();
-					while (actualCurrentFloor <= maxFloorDestination) {
-						
-						
-						if (actualCurrentFloor == maxFloorDestination) {
-							break;
-						}
-						
-//						moreEvents = checkForMoreEvents();
-						if (moreEvents) {
-//							try {
-//								getEventsOnTheWay(currentState); function to keep checking the scheduler queue for events that are on the elvators way
-//							} catch (ClassNotFoundException e) {
-//							} catch (IOException e) {
-//							}
+				String receivedData = new String(receivePacket.getData());
+				String parsedData[] = receivedData.split(",");
 
-							//ascends the floor, waits based on calculations from iteration 0
-//							this.elevatorMotor.ascendFloor(this.actualCurrentFloor, this.idOfCar);update the actual current floor when moving up
-							
-							//Open and close the door of the elevator
-//							this.elevatorDoor.openAndCloseDoor(this.idOfCar);
-							
-						}
-						else {
-							//ascends the floor, waits based on calculations from iteration 0
-//							this.elevatorMotor.ascendFloor(this.actualCurrentFloor, this.idOfCar);
-						}
-//						this.actualCurrentFloor++;
-					}
+				switch (parsedData[0]) {
+				case "seekWork":
+					this.handleSeekWork(Integer.parseInt(parsedData[1]));
+					break;
+//				case "arrived":
+//					this.handleArrived();
+//					break;
 				}
-				
-				//Travels downwards and checks on each level if there is any additional requests that it could take on
-			else if (MotorState.DOWN == currentState) {
-					
-					if(!scheduler.getEventsQueue().isEmpty()) {
-						minFloorDestination = scheduler.getMinDestFloor(currentState);
-					}
-					while (actualCurrentFloor >= minFloorDestination) {
-						
-						//Implement elevator movement
-						
-						if (actualCurrentFloor == minFloorDestination) {
-							break;
-						}
-						
-						//Check for more events on the way of elevator
-//						moreEvents = checkForMoreEvents();
-						if (moreEvents) {
-//							try {
-//								getEventsOnTheWay(currentState);
-//							} catch (ClassNotFoundException e) {
-//							} catch (IOException e) {
-//							}
-
-							//descends the floor, waits based on calculations from iteration 0
-//							this.elevatorMotor.descendFloor(this.actualCurrentFloor, this.idOfCar);
-
-							//Open and close the door of the elevator
-//							this.elevatorDoor.openAndCloseDoor(this.idOfCar);
-							
-						}
-						else {
-							//descends the floor, waits based on calculations from iteration 0
-//							this.elevatorMotor.descendFloor(this.actualCurrentFloor, this.idOfCar);
-						}
-	
-						actualCurrentFloor--;
-					}
-				}
-				
-				//now that all work is done, go back to being Stop
-				currentState = MotorState.IDLE;
 			}
-		}catch (InterruptedException | IOException e) {
+	}
+
+	private void handleSeekWork(int currentFloor) {
+		try {
+			String response = scheduler.scheduleEvents(MotorState.IDLE, currentFloor);
+
+			byte[] message = response.getBytes();
+			sendPacket = new DatagramPacket(message, message.length, receivePacket.getAddress(), receivePacket.getPort());
+			socket.send(sendPacket);
+
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		}
-		
-		
-
-	public int moveElevator(boolean isUp) {
-		if(isUp) {
-			return actualCurrentFloor++;
-		}else {
-			return actualCurrentFloor--;
-		}
-	}
-	
-	/**
-	 * Return the Id of the desired elevator to send the event to
-	 * @return
-	 */
-	public int scheduleElevator() {
-		
-	}
-	
-	public String[] parseData(String scheduler_data){
-        String[] tokens = scheduler_data.split(",");
-
-        return tokens;
-    }
-	
-	public MotorState getState(String str) {
-		if(str.equals("IDLE")) {
-			return MotorState.IDLE;
-		}else if(str.equals("UP")) {
-			return MotorState.UP;
-		}else {
-			return MotorState.DOWN;
-		}
 	}
 
-	private void finishRequest(byte[] msg) throws IOException {
-		DatagramPacket sendPacket = new DatagramPacket(msg, msg.length, this.sourceAdd, this.sourcePort);
-		System.out.println("SCHEDULER --> Prepared response packet to send to elevator");
-		DatagramSocket socket = new DatagramSocket();
-		socket.send(sendPacket);
-		System.out.println("SCHEDULER --> Response Packet sent to floor");
-		socket.close();
-	}
-
-}	
-
+//	/**
+//	 * This method handles a call to the scheduler's requestWork function
+//	 * 
+//	 * @param parsed The request
+//	 * @throws InterruptedException
+//	 * @throws IOException
+//	 */
+//	private void handleRequestWork(MessageParser parsed) throws InterruptedException, IOException {
+//		if (parsed.floorNum == -1) {
+//			System.out.println("From Scheduler: Invalid request work parameters");
+//			return;
+//		}
+//		ElevatorDirection direction = this.scheduler.requestWork(parsed.floorNum);
+//		this.finishRequest(direction.toString().getBytes());
+//	}
+//
+//	/**
+//	 * This method handles a call to the scheduler's checkForMoreEvents function
+//	 * 
+//	 * @param parsed The request
+//	 * @throws InterruptedException
+//	 * @throws IOException
+//	 */
+//	private void handleCheckForMoreEvents(MessageParser parsed) throws InterruptedException, IOException {
+//		if (parsed.floorNum == -1 || parsed.direction == null) {
+//			System.out.println("From Scheduler: Invalid check for more events parameters");
+//			return;
+//		}
+//		boolean bool = this.scheduler.checkForMoreEvents(parsed.floorNum, parsed.direction);
+//		this.finishRequest(String.valueOf(bool).getBytes());
+//	}
+//
+//	/**
+//	 * This method handles a call to the scheduler's stopAndTakeEvents function
+//	 * 
+//	 * @param parsed The request
+//	 * @throws InterruptedException
+//	 * @throws IOException
+//	 */
+//	private void handleStopAndTakeEvents(MessageParser parsed) throws InterruptedException, IOException {
+//		if (parsed.floorNum == -1 || parsed.direction == null) {
+//			System.out.println("From Scheduler: Invalid handle stop and take events parameters");
+//			return;
+//		}
+//
+//		List<InputInformation> events = this.scheduler.stopAndTakeEvents(parsed.floorNum, parsed.direction);
+//		ByteArrayOutputStream bStream = new ByteArrayOutputStream(2048);
+//		ObjectOutput objectOutput = new ObjectOutputStream(bStream);
+//		objectOutput.writeObject(events);
+//		objectOutput.close();
+//		this.finishRequest(bStream.toByteArray());
+//	}
+//
+//	/**
+//	 * This method handles a call to the scheduler's
+//	 * getHighestFloorTargetDestination function
+//	 * 
+//	 * @param parsed The request
+//	 * @throws InterruptedException
+//	 * @throws IOException
+//	 */
+//	private void handleGetHighestFloorTargetDestination(MessageParser parsed) throws IOException {
+//		if (parsed.direction == null) {
+//			System.out.println("From Scheduler: Invalid get highest floor target destination parameters");
+//			return;
+//		}
+//		int target = this.scheduler.getHighestFloorTargetDestination(parsed.direction);
+//		this.finishRequest(String.valueOf(target).getBytes());
+//	}
+//
+//	/**
+//	 * This method handles a call to the scheduler's getLowestFloorTargetDestination
+//	 * function
+//	 * 
+//	 * @param parsed The request
+//	 * @throws InterruptedException
+//	 * @throws IOException
+//	 */
+//	private void handleGetLowestFloorTargetDestination(MessageParser parsed) throws IOException {
+//		if (parsed.direction == null) {
+//			System.out.println("From Scheduler: Invalid get lowest floor target destination parameters");
+//			return;
+//		}
+//		int target = this.scheduler.getLowestFloorTargetDestination(parsed.direction);
+//		this.finishRequest(String.valueOf(target).getBytes());
+//	}
+//
+//	/**
+//	 * This method handles a call to the scheduler's removeFirstEvent function
+//	 * 
+//	 * @param parsed The request
+//	 * @throws InterruptedException
+//	 * @throws IOException
+//	 */
+//	private void handleRemoveFirstEvent(MessageParser parsed) throws IOException {
+//		InputInformation event = this.scheduler.removeFirstEvent();
+//		ByteArrayOutputStream bStream = new ByteArrayOutputStream();
+//		ObjectOutput objectOutput = new ObjectOutputStream(bStream);
+//		objectOutput.writeObject(event);
+//		objectOutput.close();
+//		this.finishRequest(bStream.toByteArray());
+//	}
+//
+//	/**
+//	 * This method handles a call to the scheduler's removeEvent function
+//	 * 
+//	 * @param parsed The request
+//	 * @throws InterruptedException
+//	 * @throws IOException
+//	 */
+//	private void handleRemoveEvent(MessageParser parsed) throws IOException {
+//		InputInformation event = this.scheduler.removeEvent(parsed.floorNum);
+//		ByteArrayOutputStream bStream = new ByteArrayOutputStream();
+//		ObjectOutput objectOutput = new ObjectOutputStream(bStream);
+//		objectOutput.writeObject(event);
+//		objectOutput.close();
+//		this.finishRequest(bStream.toByteArray());
+//	}
+//
+//	/**
+//	 * This method handles a call to the scheduler's getQueuedEvents function
+//	 * 
+//	 * @param parsed The request
+//	 * @throws InterruptedException
+//	 * @throws IOException
+//	 */
+//	private void handleGetQueuedEvents(MessageParser parsed) throws IOException {
+//		// Get queued events
+//		LinkedList<InputInformation> events = this.scheduler.getQueuedEvents();
+//		ByteArrayOutputStream bStream = new ByteArrayOutputStream(2048);
+//		ObjectOutput objectOutput = new ObjectOutputStream(bStream);
+//		objectOutput.writeObject(events);
+//		objectOutput.close();
+//		this.finishRequest(bStream.toByteArray());
+//	}
+//
+//	/**
+//	 * This method sends back the appropriate data to the source elevator
+//	 * 
+//	 * @param msg The return value to be sent through the socket
+//	 * @throws IOException
+//	 */
+//	private void finishRequest(byte[] msg) throws IOException {
+//		DatagramPacket sendPacket = new DatagramPacket(msg, msg.length, this.sourceAddress, this.sourcePort);
+//		System.out.println("From Scheduler: Prepared response packet to send to elevator");
+//		DatagramSocket socket = new DatagramSocket();
+//		socket.send(sendPacket);
+//		System.out.println("From Scheduler: Sent response packet to floor");
+//		socket.close();
+//	}
+}

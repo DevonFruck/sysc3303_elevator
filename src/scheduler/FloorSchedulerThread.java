@@ -5,8 +5,10 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
+import types.EventsHandler;
 import types.InputEvents;
 
+import static config.Config.*;
 /**
  * This thread is created and used for each new event
  */
@@ -24,10 +26,7 @@ public class FloorSchedulerThread extends Thread {
 	 * @param port The port making the new event request
 	 * @param scheduler The scheduler in which the new event is added to
 	 */
-	public FloorSchedulerThread(InputEvents event, InetAddress sourceAdd, int port, Scheduler scheduler) {
-		this.event = event;
-		this.sourceAdd = sourceAdd;
-		this.port = port;
+	public FloorSchedulerThread(Scheduler scheduler) {
 		this.scheduler = scheduler;
 	}
 	
@@ -36,19 +35,33 @@ public class FloorSchedulerThread extends Thread {
 	 */
 	public void run() {
 		try {
-			this.scheduler.acceptEvent(event); // Waits until the event has been accepted by scheduler
-			System.out.println("SCHEDULER --> Event is finished");
+			byte[] floorInputs = new byte[100];
 			
-			String message = "Event Processed";
-			DatagramPacket sendPacket = new DatagramPacket(message.getBytes(), message.length(), this.sourceAdd, this.port);
+			DatagramPacket receivePacket =  new DatagramPacket(floorInputs, floorInputs.length);
 			
-			System.out.println("Schedular --> Acknowledgement to be sent to floor");
+			DatagramSocket receiveSocket = new DatagramSocket(FLOOR_SCHEDULER_PORT);
+			receiveSocket.receive(receivePacket);
 			
-			DatagramSocket socket = new DatagramSocket();
-			socket.send(sendPacket);
-			System.out.println("Schedular --> Sent acknowledgement packet to floor");
+			String data = new String(receivePacket.getData());
+//			"time, floor, des, direction"
 			
-			socket.close();
+			InputEvents newEvent = new EventsHandler(data);
+			
+			
+			
+			this.scheduler.acceptEvent(newEvent); // Waits until the event has been accepted by scheduler
+//			System.out.println("SCHEDULER --> Event is finished");
+			
+//			String message = "Event Processed";
+//			DatagramPacket sendPacket = new DatagramPacket(message.getBytes(), message.length(), this.sourceAdd, this.port);
+//			
+//			System.out.println("Schedular --> Acknowledgement to be sent to floor");
+//			
+//			DatagramSocket socket = new DatagramSocket();
+//			socket.send(sendPacket);
+//			System.out.println("Schedular --> Sent acknowledgement packet to floor");
+//			
+//			socket.close();
 		
 		} catch (InterruptedException | IOException e) {
 			e.printStackTrace();

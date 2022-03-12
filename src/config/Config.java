@@ -17,7 +17,7 @@ public final class Config {
      */
     private Config() {}
     
-    public static final int NUM_OF_ELEVATORS = 5;
+    public static final int NUM_OF_ELEVATORS = 3;
     public static final int NUM_OF_FLOORS = 10;
     public static final int ELEV_CHANNEL_PORT = 50;
     public static final int ELEV_SUBSYS_PORT = 25;

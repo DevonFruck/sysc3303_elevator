@@ -74,7 +74,7 @@ public class FloorSubsystem implements Runnable{
         }
     }
     
-    public byte[] getFromScheduler() {
+    public String[] getFromScheduler() {
         byte data[] = new byte[100];
         try {
             this.receivePacket = new DatagramPacket(data, data.length);
@@ -82,32 +82,33 @@ public class FloorSubsystem implements Runnable{
         } catch (IOException | IllegalArgumentException e) {
             e.printStackTrace();
         }
-//        return this.parseData(receivePacket.getData().toString());
-        return (receivePacket.getData());
+        return this.parseData(receivePacket.getData().toString());
+//        return (receivePacket.getData());
     }
     
     public String[] parseData(String scheduler_data){
         String[] tokens = scheduler_data.split(",");
-        
         return tokens;
     }
         
     public void run() {
         while(true) {
-            byte[] data = this.getFromScheduler();
+        	String data[] = this.getFromScheduler();
+        	
+//          byte[] data = this.getFromScheduler();
             
-            
-			try {
-				ObjectInputStream iStream = new ObjectInputStream(new ByteArrayInputStream(data));
-				InputEvents parsedEvent = (InputEvents)iStream.readObject();
-				iStream.close();
-				
-				FloorSchedulerThread subFloorThread = new FloorSchedulerThread(parsedEvent, receivePacket.getAddress(), receivePacket.getPort(), this.scheduler);
-				subFloorThread.start();
-			} catch (IOException | ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+        	
+//			try {
+//				ObjectInputStream iStream = new ObjectInputStream(new ByteArrayInputStream(data));
+//				InputEvents parsedEvent = (InputEvents)iStream.readObject();
+//				iStream.close();
+//				
+//				FloorSchedulerThread subFloorThread = new FloorSchedulerThread(parsedEvent, receivePacket.getAddress(), receivePacket.getPort(), this.scheduler);
+//				subFloorThread.start();
+//			} catch (IOException | ClassNotFoundException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 			
         }
     }

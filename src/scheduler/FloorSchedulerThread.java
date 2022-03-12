@@ -12,7 +12,7 @@ import types.InputEvents;
  */
 public class FloorSchedulerThread extends Thread {
 	private Scheduler scheduler;
-	private int sourcePort;
+	private int port;
 	private InetAddress sourceAdd;
 	
 	private InputEvents event;
@@ -21,13 +21,13 @@ public class FloorSchedulerThread extends Thread {
 	 * Creates a new FloorSubThread for the new event
 	 * @param event The added event
 	 * @param sourceAdd The address making the new event request
-	 * @param sourcePort The port making the new event request
+	 * @param port The port making the new event request
 	 * @param scheduler The scheduler in which the new event is added to
 	 */
-	public FloorSchedulerThread(InputEvents event, InetAddress sourceAdd, int sourcePort, Scheduler scheduler) {
+	public FloorSchedulerThread(InputEvents event, InetAddress sourceAdd, int port, Scheduler scheduler) {
 		this.event = event;
 		this.sourceAdd = sourceAdd;
-		this.sourcePort = sourcePort;
+		this.port = port;
 		this.scheduler = scheduler;
 	}
 	
@@ -36,27 +36,21 @@ public class FloorSchedulerThread extends Thread {
 	 */
 	public void run() {
 		try {
-			this.scheduler.acceptEvent(event); // Waits until the event has been accepted and dealt with within the scheduler
+			this.scheduler.acceptEvent(event); // Waits until the event has been accepted by scheduler
+			System.out.println("SCHEDULER --> Event is finished");
 			
-			System.out.println("From Schedular: Event is finished");
+			String message = "Event Processed";
+			DatagramPacket sendPacket = new DatagramPacket(message.getBytes(), message.length(), this.sourceAdd, this.port);
 			
-			String msg = "Event processed";
-			
-			DatagramPacket sendPacket = new DatagramPacket(msg.getBytes(), msg.length(), this.sourceAdd, this.sourcePort);
-			
-			System.out.println("From Schedular: Acknowledgement packet to be sent to the floor");
+			System.out.println("Schedular --> Acknowledgement to be sent to floor");
 			
 			DatagramSocket socket = new DatagramSocket();
-			
 			socket.send(sendPacket);
-			
-			System.out.println("From Schedular: Sent acknowledgement packet to floor");
+			System.out.println("Schedular --> Sent acknowledgement packet to floor");
 			
 			socket.close();
 		
 		} catch (InterruptedException | IOException e) {
-			
-			System.out.println("From Schedular: Failure to accept event");
 			e.printStackTrace();
 		}
 	}

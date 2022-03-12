@@ -22,6 +22,7 @@ import static config.Config.NUM_OF_ELEVATORS;
  */
 public class ElevatorSubsystem implements Runnable {
 	private Scheduler scheduler;
+	private MotorState motorState;
 	
     ElevatorCar elevatorList[] = new ElevatorCar[NUM_OF_ELEVATORS];
     
@@ -96,6 +97,19 @@ public class ElevatorSubsystem implements Runnable {
         return elevatorList[id].getMotor().getStatus();
     }
     
+    
+    MotorState getElevatorCurrentFloor(int id) {
+        try {
+            while(nextFloor[id] == 0) {
+                wait();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        
+        return elevatorList[id].getMotor().getStatus();
+    }
+    
     /*
         Parses the data to send to Elevator car
     */
@@ -115,7 +129,7 @@ public class ElevatorSubsystem implements Runnable {
         socket.send(sendPacket);
     }
     
-    public byte[] getFromScheduler() {
+    public String[] getFromScheduler() {
         try {
             byte data[] = new byte[100];
             DatagramPacket receivePacket = new DatagramPacket(data, data.length);
@@ -123,8 +137,8 @@ public class ElevatorSubsystem implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-//        return this.parseData(receivePacket.getData().toString());
-        return (receivePacket.getData());
+        return this.parseData(receivePacket.getData().toString());
+//        return (receivePacket.getData());
     }
     
     
@@ -132,15 +146,29 @@ public class ElevatorSubsystem implements Runnable {
     public void run() {
         // TODO Auto-generated method stub
         while (true) {
+//        	sendToScheduler(getElevatorCurrentFloor(), getElevatorState());
+        	try {
+        		System.out.println(elevatorList[0].id);
+        		
+        		//////////////////////////////////////////////
+				sendToScheduler(2, "IDLE");//////////////////////////
+				/////////////////////////////////////////////
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        	
+        	
             //Assuming data[0] is ID and data[1] is the next floor
-            byte[] data = getFromScheduler();
-//            setNextFloor(Integer.parseInt(data[0]), Integer.parseInt(data[1]));
-            
-			String request = new String(data);
-			MessageParser parsed = new MessageParser(request);
-			System.out.println("From Scheduler: successfully parsed request from elevator with address " + receivePacket.getAddress() + ", port " + receivePacket.getPort());
-			ElevatorSchedulerThread subElevThread = new ElevatorSchedulerThread(parsed, receivePacket.getAddress(), receivePacket.getPort(), this.scheduler);
-			subElevThread.start();
+        	String data[] = getFromScheduler();
+            setNextFloor(Integer.parseInt(data[0]), Integer.parseInt(data[1]));
+        	
+//        	byte[] data = getFromScheduler();
+//			String request = new String(data);
+//			MessageParser parsed = new MessageParser(request);
+//			System.out.println("From Scheduler: successfully parsed request from elevator with address " + receivePacket.getAddress() + ", port " + receivePacket.getPort());
+//			ElevatorSchedulerThread subElevThread = new ElevatorSchedulerThread(parsed, receivePacket.getAddress(), receivePacket.getPort(), this.scheduler);
+//			subElevThread.start();
 			
         }
     }

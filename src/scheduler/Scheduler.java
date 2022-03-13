@@ -1,15 +1,8 @@
 package scheduler;
 
 import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import elevator.ElevatorCar;
 import elevator.ElevatorSubsystem;
-import floorSubsystem.Floor;
 import floorSubsystem.FloorSubsystem;
 import types.MotorState;
 import types.InputEvents;

@@ -1,17 +1,9 @@
 package scheduler;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.SocketException;
-import java.util.LinkedList;
-import java.util.List;
-
-import types.InputEvents;
 import types.MotorState;
 
 import static config.Config.*;
@@ -21,8 +13,6 @@ import static config.Config.*;
  */
 public class ElevatorSchedulerThread extends Thread {	
 
-	private InetAddress sourceAdd;
-	private int sourcePort;
 	private Scheduler scheduler;
 
 	private DatagramPacket receivePacket, sendPacket;
@@ -30,9 +20,6 @@ public class ElevatorSchedulerThread extends Thread {
 
 	/**
 	 * Creates a thread for the elevator operation
-	 * @param parsed The operation that is to be done
-	 * @param sourceAddress The address making the request
-	 * @param sourcePort The port making the request
 	 * @param scheduler The scheduler to make the request to
 	 */
 	public ElevatorSchedulerThread(Scheduler scheduler) {

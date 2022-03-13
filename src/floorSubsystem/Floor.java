@@ -2,9 +2,7 @@ package floorSubsystem;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import scheduler.Scheduler;
 import types.InputEvents;
-import types.MotorState;
 
 /**
  * @author L4 Group 9

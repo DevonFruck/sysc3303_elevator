@@ -4,13 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
 
-import elevator.ElevatorCar;
-import floorSubsystem.Floor;
 import scheduler.Scheduler;
 import types.EventsHandler;
-import types.InputEvents;
+
 import types.MotorState;
 
 /**

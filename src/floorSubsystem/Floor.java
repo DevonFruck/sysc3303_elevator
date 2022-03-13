@@ -47,7 +47,7 @@ public class Floor extends Thread {
      */
     public void readEvents() {
         ArrayList<InputEvents> arr = new ArrayList<InputEvents>();
-        arr.addAll(TxtFileReader.getEvents("src/input.txt"));
+        arr.addAll(TxtFileReader.getEvents("floorSubsystem/input.txt"));
         for (int i = 0; i < arr.size(); i++) {
             InputEvents temp = arr.get(i);
             if (temp.getInitialFloor() == this.floorNumber) {
@@ -59,6 +59,7 @@ public class Floor extends Thread {
     public void requestElevator() {
         InputEvents a = events.remove(0);
         try {
+//        	System.out.println("FLOOR #:"+floorNumber+ "--> Sending this message: "+a);
             subsys.sendToScheduler(a);
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -74,34 +75,34 @@ public class Floor extends Thread {
      * Invoked by the scheduler when the requested elevator has arrived at the
      * floor.
      */
-    public void elevatorArrived() {
-        System.out.println("Elevator has arrived on floor: " + floorNumber);
-    }
+//    public void elevatorArrived() {
+//        System.out.println("Elevator has arrived on floor: " + floorNumber);
+//    }
 
     public ArrayList<InputEvents> getEventList() {
         return events;
     }
 
-    public void receiveEvent() throws IllegalArgumentException {
-        MotorState state;
-        try {
-            state = subsys.getElevatorArrived(this.floorNumber-1);
-            
-            if(state == MotorState.DOWN) {
-                floorButtons[1].pressButton();
-            }
-            
-            else if(state == MotorState.UP) {
-                floorButtons[0].pressButton();
-            }
-              
-            this.elevatorArrived();
-            
-        } catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
+//    public void receiveEvent() throws IllegalArgumentException {
+//        MotorState state;
+//        try {
+//            state = subsys.getElevatorArrived(this.floorNumber-1);
+//            
+//            if(state == MotorState.DOWN) {
+//                floorButtons[1].pressButton();
+//            }
+//            
+//            else if(state == MotorState.UP) {
+//                floorButtons[0].pressButton();
+//            }
+//              
+//            this.elevatorArrived();
+//            
+//        } catch (IllegalArgumentException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+//    }
 
     /**
      * Send a floor input event to the scheduler.
@@ -115,12 +116,10 @@ public class Floor extends Thread {
 
     @Override
     public void run() {
+    	this.readEvents();
         while (true) {
-            this.readEvents();
-            try {
-                this.receiveEvent();
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
+            while(!this.events.isEmpty()) {
+            	this.requestElevator();
             }
         }
     }

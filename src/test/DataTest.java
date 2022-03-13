@@ -3,6 +3,9 @@ package test;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
+import floorSubsystem.Floor;
+import floorSubsystem.FloorSubsystem;
+
 import java.net.SocketException;
 import java.time.LocalTime;
 
@@ -22,7 +25,7 @@ class DataTest{
 
     @Test
     void testsForElevatorCommunication() throws InterruptedException{
-    // Initiating all the classes
+//     Initiating all the classes
         FloorSubsystem subsystem;
         try {
             subsystem = new FloorSubsystem();

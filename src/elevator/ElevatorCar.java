@@ -76,7 +76,6 @@ public class ElevatorCar extends Thread {
 
 	public void receiveExtraWork(MotorState dir, boolean seek) {
 		if(seek) {
-			String sendData;
 			String message = "seekWork," + currentFloor + "," + dir.name();
 			try {
 				sendPacket = new DatagramPacket(message.getBytes(), message.length(), InetAddress.getByName(DEFAULT), ELEVATOR_SCHEDULER_PORT);
@@ -129,10 +128,6 @@ public class ElevatorCar extends Thread {
 	}
 
 	public void run() {
-		DatagramPacket sendPacket, receivePacket;
-		int minFloorDestination = 0;
-		int maxFloorDestination = 0;
-
 		while (true) {
 			receiveExtraWork(this.direction, keepSeeking);
 			while(workList.size()!=0) {

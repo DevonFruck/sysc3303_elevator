@@ -3,7 +3,6 @@ package scheduler;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
 import java.net.SocketException;
 
 import types.EventsHandler;
@@ -15,17 +14,10 @@ import static config.Config.*;
  */
 public class FloorSchedulerThread extends Thread {
 	private Scheduler scheduler;
-	private int port;
-	private InetAddress sourceAdd;
-
-	private InputEvents event;
 
 	private DatagramSocket receiveSocket;
 	/**
 	 * Creates a new FloorSubThread for the new event
-	 * @param event The added event
-	 * @param sourceAdd The address making the new event request
-	 * @param port The port making the new event request
 	 * @param scheduler The scheduler in which the new event is added to
 	 */
 	public FloorSchedulerThread(Scheduler scheduler) {

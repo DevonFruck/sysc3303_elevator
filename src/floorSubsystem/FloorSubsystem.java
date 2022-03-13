@@ -1,16 +1,11 @@
 package floorSubsystem;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-
-import scheduler.FloorSchedulerThread;
 import scheduler.Scheduler;
 import types.InputEvents;
 import types.MotorState;
@@ -23,8 +18,6 @@ public class FloorSubsystem {
     DatagramPacket receivePacket, sendPacket;
     DatagramSocket socket;
     InetAddress ip;
-    
-    private Scheduler scheduler;
     
     public FloorSubsystem () throws SocketException {
         try {

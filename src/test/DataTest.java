@@ -5,14 +5,10 @@ import org.junit.jupiter.api.Test;
 
 import java.net.SocketException;
 import java.time.LocalTime;
-import java.util.ArrayList;
 
-import elevator.ElevatorCar;
-import floorSubsystem.FloorSubsystem;
-import floorSubsystem.Floor;
 import scheduler.Scheduler;
 import types.EventsHandler;
-import types.InputEvents;
+
 import types.MotorState;
 
 /**

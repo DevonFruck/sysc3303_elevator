@@ -20,9 +20,10 @@ public class ElevatorCar extends Thread {
 
 	// floors the elevator must visit
 	ArrayList<Integer> workList = new ArrayList<Integer>();
+	ArrayList<Integer> workListInitialFloor = new ArrayList<Integer>();
 
 	int id;
-	boolean isActive, isDoorOpen;
+	boolean isActive, isDoorOpen, keepSeeking;
 	InputEvents currentEvent;
 	//ElevatorSubsystem subsys;
 	int currentFloor;
@@ -44,6 +45,7 @@ public class ElevatorCar extends Thread {
 	 * @param scheduler The elevator scheduler the class interacts with.
 	 */
 	public ElevatorCar(int id, int initialFloor) {
+		this.keepSeeking = true;
 		this.id = id;
 		isActive = false;
 		currentEvent = null;
@@ -71,189 +73,126 @@ public class ElevatorCar extends Thread {
 		}
 	}
 
-	/**
-	 * Getter for the elevator's current event.
-	 * 
-	 * @return its in progress event.
-	 */
-	public InputEvents getCurrentEvent() {
-		return currentEvent;
-	}
 
-	// Returns final floor it will arrive to
-	//	public Integer getFinalFloor() {
-	//	   return floors.get(floors.size()-1);
-	//	}
+	public void receiveExtraWork(MotorState dir, boolean seek) {
+		if(seek) {
+			String sendData;
+			String message = "seekWork," + currentFloor + "," + dir.name();
+			try {
+				sendPacket = new DatagramPacket(message.getBytes(), message.length(), InetAddress.getByName(DEFAULT), ELEVATOR_SCHEDULER_PORT);
+				socket.send(sendPacket);
 
-	//	public void receiveEvent() throws IllegalArgumentException, IOException {
-	////		String data[];
-	////		data = subsys.getFromScheduler();
-	////		
-	////        if (Integer.parseInt(data[0]) != this.id) {
-	////        	throw new IllegalArgumentException("Data sent to wrong elevator");
-	////        }
-	////        
-	////        int floorNum = Integer.parseInt(data[1]);
-	////        //U,D,I,O
-	////        String state = data[2];
-	////        this.elevatorMovement(floorNum);
-	//		int floor = subsys.getNextFloor(this.id);
-	//		elevatorMovement(floor);
-	//	}
+				byte receiveData[] = new byte[100];
+				receivePacket = new DatagramPacket(receiveData, receiveData.length);
 
-	/**
-	 * Getter for the elevator's current floor.
-	 * 
-	 * @return The number of the floor the elevator is at.
-	 */
-	public int getCurrentFloor() {
-		return currentFloor;
-	}
+				socket.receive(receivePacket);
 
-	/**
-	 * Getter for if elevator is active. Deprecated.
-	 * 
-	 * @return boolean for if it is active
-	 */
-	//	public boolean getIsActive() {
-	//		return isActive;
-	//	}
-	//	
-	//	public ElevatorMotor getMotor() {
-	//		return motor;
-	//	}
+				String responseData = new String(receivePacket.getData()).trim();
 
-	//	public MotorState getMotorState() {
-	//	    return this.currentState;
-	//	}
+				if(responseData.trim().equals("EMPTY")) {
+					keepSeeking = false;
+					return;
+				}
 
-	/**
-	 * Setter for setting the active state of elevator.
-	 * 
-	 * @param val boolean state for elevator.
-	 */
-	//	public void setIsActive(boolean val) {
-	//	   isActive = val;
-	//	}
+				if(responseData.trim().equals("NULL")) {
+					try {
+						Thread.sleep(2000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					return;
+				}
 
+				String[] parsedData = responseData.split("&");
+				if(this.direction==MotorState.IDLE) {
+					if(parsedData[0] == "UP" ) {
+						this.direction = MotorState.UP;
+					} 
+					else {
+						this.direction = MotorState.DOWN;
+					}
+				}				
 
-	public void receiveExtraWork(MotorState dir) {
-		String sendData;
-		String message = "seekWork," + currentFloor;
-		
-		try {
-			sendPacket = new DatagramPacket(message.getBytes(), message.length(), InetAddress.getByName(DEFAULT), ELEVATOR_SCHEDULER_PORT);
-			socket.send(sendPacket);
-
-			byte[] schedulerData = new byte[1024];
-			receivePacket = new DatagramPacket(schedulerData, schedulerData.length);
-
-
-			socket.receive(receivePacket);
-
-			// TODO Auto-generated catch block
+				//adds the floors to the work list
+				String parsedFloors[] = parsedData[1].split(",");
+				workList.add(Integer.parseInt(parsedFloors[0]));
+				workListInitialFloor.add(Integer.parseInt(parsedFloors[1]));
 
 
 
-			byte receiveData[] = new byte[100];
-			receivePacket = new DatagramPacket(receiveData, receiveData.length);
-
-			socket.receive(receivePacket);
-			
-			String responseData = new String(receivePacket.getData());
-
-			if(responseData == "NULL") {
-				return;
-			}
-			
-			String[] parsedData = responseData.split("&");
-			
-			if(parsedData[0] == "UP") {
-				this.direction = MotorState.UP;
-			} 
-			else {
-				this.direction = MotorState.DOWN;
-			}
-
-			//adds the floors to the work list
-			String parsedFloors[] = parsedData[1].split(",");
-			for(int i=0; i<parsedFloors.length; i++) {
-				workList.add(Integer.parseInt(parsedFloors[i]));
-			}
-
-
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-	}
-
-	public void updateWorkList() {
-		for(int i=0; i<workList.size(); i++) {
-			if(currentFloor == workList.get(i)) {
-				workList.remove(i);
-				System.out.println("Elevator ID: " +id+ " arrived at floor " + currentFloor);
-				elevButtons[i].pressButton();
-				elevatorDoor.openCloseDoor();
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
 		}
-	}
 
+	}
 
 	public void run() {
 		DatagramPacket sendPacket, receivePacket;
 		int minFloorDestination = 0;
 		int maxFloorDestination = 0;
 
-			while (true) {
-				if (MotorState.IDLE==this.direction) {
-					//socket = new socket();
-//					String message = "seekWork," + currentFloor;
-//					sendPacket = new DatagramPacket(message.getBytes(), message.length(), InetAddress.getByName(SCHEDULER_IP), ELEVATOR_SCHEDULER_PORT);
-//					socket.send(sendPacket);
-//					byte[] schedulerData = new byte[1024];
-//					receivePacket = new DatagramPacket(schedulerData, schedulerData.length);
-//					//System.out.println("ELEVATOR #" + this.carID + ": waiting to receive from scheduler");
-//					socket.receive(receivePacket);
-//
-//					String parsedData[] = new String(receivePacket.getData()).split("&");
-//
-//					if(parsedData[0] == "UP") {
-//						this.direction = MotorState.UP;
-//					} 
-//					else {
-//						this.direction = MotorState.DOWN;
-//					}
-//
-//					//adds the floors to the work list
-//					String parsedFloors[] = parsedData[1].split(",");
-//					for(int i=0; i<parsedFloors.length; i++) {
-//						workList.add(Integer.parseInt(parsedFloors[i]));
-//					}
-					
-					receiveExtraWork(this.direction);
+		while (true) {
+			receiveExtraWork(this.direction, keepSeeking);
+			while(workList.size()!=0) {
+				System.out.println("ELEVATOR ("+id+") ----- Current Floor: "+this.currentFloor+" -----  Work List: "+ workList);
+				receiveExtraWork(this.direction, keepSeeking);
+				boolean initialPicked;
+				boolean reachedDistination;
+				for(int i=0; i<workList.size(); i++) {
+					initialPicked = false;
+					reachedDistination = false;
 
-
-					//this.currentState = MotorState.valueOf(new String(receivePacket.getData()).trim());
-					//socket.close();
-				}
-
-				while(!workList.isEmpty()) {
-					currentFloor = motor.moveElevator(currentFloor, id, direction == MotorState.UP ? true : false);
-
-					if(workList.contains(currentFloor)) {
-						updateWorkList();
-
-//						String message = "arrived," + currentFloor;
-//						sendPacket = new DatagramPacket(message.getBytes(), message.length(), InetAddress.getByName(SCHEDULER_IP), ELEVATOR_SCHEDULER_PORT);
-//						socket.send(sendPacket);
-						//byte[] schedulerData = new byte[1024];
-						//TODO: acknowledgement of receiving?
-
+					while(!initialPicked) {
+						if(currentFloor!=workListInitialFloor.get(i)) {
+							initialPicked = false;
+							if(workListInitialFloor.get(i)>this.currentFloor) {
+								this.direction = MotorState.UP;
+							}else{
+								this.direction = MotorState.DOWN;
+							}
+							currentFloor = motor.moveElevator(currentFloor, id, direction == MotorState.UP ? true : false);
+						}else {//in intial floor
+							if(workList.get(i)>this.currentFloor) {
+								this.direction = MotorState.UP;
+							}else {
+								this.direction = MotorState.DOWN;
+							}
+							initialPicked = true;
+						}
 					}
-					//request any extra work we can get on the way
-					receiveExtraWork(this.direction);
+
+					while(!reachedDistination && initialPicked) {
+						if(currentFloor!=workList.get(i)) {
+							reachedDistination = false;
+							if(workList.get(i)>this.currentFloor) {
+								this.direction = MotorState.UP;
+							}else{
+								this.direction = MotorState.DOWN;
+							}
+							currentFloor = motor.moveElevator(currentFloor, id, direction == MotorState.UP ? true : false);
+						}
+						else {//currentFloor matches destination
+							System.out.println("______________________________________________________________________");
+							System.out.println("Elevator ("+id+") PICKED FROM FLOOR --> "+workListInitialFloor.get(i));
+							System.out.println("Elevator ("+id+") ARRIVED @ DESTINATION FLOOR --> "+currentFloor);
+							workList.remove(i);
+							workListInitialFloor.remove(i);
+							elevButtons[i].pressButton();
+							elevatorDoor.openCloseDoor();
+							reachedDistination = true;
+						}
+					}
 				}
+
 			}
+			this.direction = MotorState.IDLE;
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 }

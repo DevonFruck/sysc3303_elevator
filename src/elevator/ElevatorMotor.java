@@ -1,6 +1,6 @@
 package elevator;
 import types.MotorState;
-
+import static config.Config.*;
 /**
  * This class is controlling Elevator up/down directions
  * @author ElevatorMotor
@@ -44,13 +44,15 @@ public class ElevatorMotor {
             e.printStackTrace();
         }
 	    
-	    int newCurrFloor;
-	    if(isUp) {
+	    int newCurrFloor = currFloor;
+	    if(isUp && currFloor < NUM_OF_FLOORS) {
 	        newCurrFloor = currFloor+1;
-	        System.out.println("Moving elevator ID: " +id+ " from +" +currFloor+ " to " +newCurrFloor);
+	        System.out.println("Moving elevator ID: " +id+ " from " +currFloor+ " to " +newCurrFloor);
 	    } else {
+	    	if(currFloor > 1) {
 	        newCurrFloor = currFloor-1;
-	        System.out.println("Moving elevator ID: " +id+ " from +" +currFloor+ " to " +newCurrFloor);
+	        System.out.println("Moving elevator ID: " +id+ " from " +currFloor+ " to " +newCurrFloor);
+	    	}
 	    }
 	    
 	    return newCurrFloor;

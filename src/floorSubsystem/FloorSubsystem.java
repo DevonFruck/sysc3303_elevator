@@ -29,7 +29,7 @@ public class FloorSubsystem {
     public FloorSubsystem () throws SocketException {
         try {
         	this.socket = new DatagramSocket();
-        	this.scheduler = scheduler;
+//        	this.scheduler = scheduler;
             ip = InetAddress.getByName(DEFAULT);
         } catch (UnknownHostException e) {
             // TODO Auto-generated catch block
@@ -45,7 +45,7 @@ public class FloorSubsystem {
             floor.start();
         }
         
-        this.getFromScheduler();
+//        this.getFromScheduler();
     }
     
 //    synchronized MotorState getElevatorArrived(int id) {
@@ -66,9 +66,10 @@ public class FloorSubsystem {
 //    }
 //    
     public void sendToScheduler(InputEvents data) throws IOException {
-        byte sendData[] = new String(data.getTime() + ","+data.getInitialFloor() + "," + data.getDestinationFloor() + "," + (data.isGoingUp() ? "U":"D")).getBytes(); ///new String("test").getBytes();
+        byte[] sendData = new String(data.getTime() + ","+data.getInitialFloor() + "," + (data.isGoingUp() ? "up":"down") + "," + data.getDestinationFloor()+",").getBytes(); ///new String("test").getBytes();
         try {
-            this.sendPacket = new DatagramPacket(sendData, sendData.length, ip, 50);
+//        	System.out.println("FLOOR #:"+floorNumber+ "--> Sending this message: "+data);
+            this.sendPacket = new DatagramPacket(sendData, sendData.length, ip, FLOOR_SCHEDULER_PORT);
             this.socket.send(sendPacket);
         } catch (IOException | IllegalArgumentException e) {
             e.printStackTrace();
@@ -117,10 +118,10 @@ public class FloorSubsystem {
 //    }
     
     public static void main(String[] args) {
-        try {
-			FloorSubsystem subsys = new FloorSubsystem();
-        } catch (SocketException e) {
-            e.printStackTrace();
-        }
+//        try {
+//			FloorSubsystem subsys = new FloorSubsystem();
+//        } catch (SocketException e) {
+//            e.printStackTrace();
+//        }
     }
 }

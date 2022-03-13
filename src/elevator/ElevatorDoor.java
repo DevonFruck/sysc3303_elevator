@@ -29,7 +29,7 @@ public class ElevatorDoor {
 	    this.doorStatus = true;
 	    System.out.println("Elevator door open");
 	    try {
-            Thread.sleep(3000);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

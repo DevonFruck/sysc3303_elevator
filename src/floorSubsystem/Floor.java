@@ -59,6 +59,7 @@ public class Floor extends Thread {
     public void requestElevator() {
         InputEvents a = events.remove(0);
         try {
+//        	System.out.println("FLOOR #:"+floorNumber+ "--> Sending this message: "+a);
             subsys.sendToScheduler(a);
         } catch (IOException e) {
             // TODO Auto-generated catch block
@@ -74,9 +75,9 @@ public class Floor extends Thread {
      * Invoked by the scheduler when the requested elevator has arrived at the
      * floor.
      */
-    public void elevatorArrived() {
-        System.out.println("Elevator has arrived on floor: " + floorNumber);
-    }
+//    public void elevatorArrived() {
+//        System.out.println("Elevator has arrived on floor: " + floorNumber);
+//    }
 
     public ArrayList<InputEvents> getEventList() {
         return events;
@@ -115,8 +116,8 @@ public class Floor extends Thread {
 
     @Override
     public void run() {
+    	this.readEvents();
         while (true) {
-            this.readEvents();
             while(!this.events.isEmpty()) {
             	this.requestElevator();
             }

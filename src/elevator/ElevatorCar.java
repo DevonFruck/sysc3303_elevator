@@ -136,7 +136,7 @@ public class ElevatorCar extends Thread {
 		while (true) {
 			receiveExtraWork(this.direction, keepSeeking);
 			while(workList.size()!=0) {
-				System.out.println("ELEVATOR ("+id+") ----- Current Floor: "+this.currentFloor+" -----  Work List: "+ workList);
+				System.out.println("ELEVATOR("+id+") ----- Current Floor: "+this.currentFloor+" -----  Work List: "+ workList);
 				receiveExtraWork(this.direction, keepSeeking);
 				boolean initialPicked;
 				boolean reachedDistination;
@@ -175,8 +175,8 @@ public class ElevatorCar extends Thread {
 						}
 						else {//currentFloor matches destination
 							System.out.println("______________________________________________________________________");
-							System.out.println("Elevator ("+id+") PICKED FROM FLOOR --> "+workListInitialFloor.get(i));
-							System.out.println("Elevator ("+id+") ARRIVED @ DESTINATION FLOOR --> "+currentFloor);
+							System.out.println("Elevator("+id+") PICKED FROM FLOOR --> "+workListInitialFloor.get(i));
+							System.out.println("Elevator("+id+") ARRIVED @ DESTINATION FLOOR --> "+currentFloor);
 							workList.remove(i);
 							workListInitialFloor.remove(i);
 							elevButtons[i].pressButton();

@@ -26,7 +26,8 @@ public class Floor extends Thread {
         this.floorNumber = floorNumber;
         this.subsys = subsys;
         this.events = new ArrayList<InputEvents>();
-
+        
+        // [0] is up, [1] is down
         floorButtons = new FloorButton[] {new FloorButton(), new FloorButton()};
     }
 
@@ -111,6 +112,15 @@ public class Floor extends Thread {
         // scheduler.addEvent(event);
     }
 
+    public void elevatorArrived(boolean goingUp) {
+        System.out.println("Elevator arrived at floor " +floorNumber);
+        
+        if(goingUp) {
+            floorButtons[0].pressButton();
+        } else {
+            floorButtons[1].pressButton();
+        }
+    }
 
     @Override
     public void run() {

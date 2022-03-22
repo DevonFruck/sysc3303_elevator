@@ -12,56 +12,46 @@ import types.MotorState;
 
 import static config.Config.*;
 
-public class FloorSubsystem {
-    Floor floorList [] = new Floor[NUM_OF_FLOORS];
+public class FloorSubsystem implements Runnable {
+    Floor floorList[] = new Floor[NUM_OF_FLOORS];
     MotorState arrivedElevator[] = new MotorState[NUM_OF_FLOORS];
     DatagramPacket receivePacket, sendPacket;
-    DatagramSocket socket;
+
+    // socket for sendToScheduler for sending to scheduler. Should be made every
+    // time in function
+    // receiveSocket is made in constructor, for receiving data from scheduler
+    DatagramSocket socket, receiveSocket;
     InetAddress ip;
-    
-    public FloorSubsystem () throws SocketException {
+
+    /**
+     * Constructor for the FloorSubsystem class. Creates all the floors and buttons, 
+     * as well as a UDP socket for receiving data from the scheduler.
+     */
+    public FloorSubsystem() {
         try {
-        	this.socket = new DatagramSocket();
-//        	this.scheduler = scheduler;
-            ip = InetAddress.getByName(DEFAULT);
-        } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
+            this.receiveSocket = new DatagramSocket(FLOOR_SCHEDULER_PORT);
+            this.socket = new DatagramSocket();
+            this.ip = InetAddress.getByName(DEFAULT);
+        } catch (UnknownHostException | SocketException e) {
             e.printStackTrace();
         }
-        
-        for(int i = 0; i < NUM_OF_FLOORS; i++) {
+
+        for (int i = 0; i < NUM_OF_FLOORS; i++) {
             this.arrivedElevator[i] = null;
             this.floorList[i] = (new Floor(this, i));
         }
-        
-        for(Thread floor : this.floorList) {
+
+        for (Thread floor : this.floorList) {
             floor.start();
         }
-        
-//        this.getFromScheduler();
     }
-    
-//    synchronized MotorState getElevatorArrived(int id) {
-//        while(arrivedElevator[id] == null) {
-//            try {
-//                wait();
-//            } catch (InterruptedException e) {
-//                // TODO Auto-generated catch block
-//                e.printStackTrace();
-//            }
-//        }
-//        return arrivedElevator[id];
-//    }
-//    
-//    synchronized void setElevatorArrived(int id, MotorState state) {
-//        arrivedElevator[id] = state;
-//        notifyAll();
-//    }
-//    
+
+
     public void sendToScheduler(InputEvents data) throws IOException {
-        byte[] sendData = new String(data.getTime() + ","+data.getInitialFloor() + "," + (data.isGoingUp() ? "up":"down") + "," + data.getDestinationFloor()+",").getBytes(); ///new String("test").getBytes();
+        byte[] sendData = new String(data.getTime() + "," + data.getInitialFloor() + ","
+                + (data.isGoingUp() ? "up" : "down") + "," + data.getDestinationFloor() + ",").getBytes();
+        
         try {
-//        	System.out.println("FLOOR #:"+floorNumber+ "--> Sending this message: "+data);
             this.sendPacket = new DatagramPacket(sendData, sendData.length, ip, FLOOR_SCHEDULER_PORT);
             this.socket.send(sendPacket);
         } catch (IOException | IllegalArgumentException e) {
@@ -69,52 +59,49 @@ public class FloorSubsystem {
         }
     }
     
-    public String[] getFromScheduler() {
+    /**
+     * Waits to receive a packet from the scheduler and notifies the 
+     * proper floor of an elevators arrival
+     */
+    public void getFromScheduler() {
         byte data[] = new byte[100];
-        
+
         try {
-        	DatagramSocket newSocket =  new DatagramSocket();
             this.receivePacket = new DatagramPacket(data, data.length);
-            newSocket.receive(receivePacket);
+            receiveSocket.receive(receivePacket);
         } catch (IOException | IllegalArgumentException e) {
             e.printStackTrace();
         }
-        return this.parseData(receivePacket.getData().toString());
-//        return (receivePacket.getData());
+
+        String receivedData[] = new String(receivePacket.getData()).trim().split(",");
+
+        // ASSUMING index 0 is floorNumber/id and index 1 is if going up;
+        boolean isGoingUp = false;
+
+        if (receivedData[1].equals("up")) {
+            isGoingUp = true;
+        }
+
+        floorList[Integer.parseInt(receivedData[0])].elevatorArrived(isGoingUp);
     }
-//    
-    public String[] parseData(String scheduler_data){
-        String[] tokens = scheduler_data.split(",");
+
+
+    public String[] parseData(String schedulerData) {
+        String[] tokens = schedulerData.split(",");
         return tokens;
     }
-        
-//    public void run() {
-//        while(true) {
-//        	String data[] = this.getFromScheduler();
-        	
-//          byte[] data = this.getFromScheduler();
-            
-        	
-//			try {
-//				ObjectInputStream iStream = new ObjectInputStream(new ByteArrayInputStream(data));
-//				InputEvents parsedEvent = (InputEvents)iStream.readObject();
-//				iStream.close();
-//				
-//				FloorSchedulerThread subFloorThread = new FloorSchedulerThread(parsedEvent, receivePacket.getAddress(), receivePacket.getPort(), this.scheduler);
-//				subFloorThread.start();
-//			} catch (IOException | ClassNotFoundException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-			
-//        }
-//    }
+    
+    
+    @Override
+    public void run() {
+        while(true) {
+            getFromScheduler();
+        }
+
+    }
+    
     
     public static void main(String[] args) {
-//        try {
-//			FloorSubsystem subsys = new FloorSubsystem();
-//        } catch (SocketException e) {
-//            e.printStackTrace();
-//        }
+        //FloorSubsystem subsys = new FloorSubsystem();
     }
 }

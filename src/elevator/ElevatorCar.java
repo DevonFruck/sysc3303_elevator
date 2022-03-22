@@ -72,7 +72,17 @@ public class ElevatorCar extends Thread {
 			e.printStackTrace();
 		}
 	}
-
+	
+	public void arrivedAtFloor(int floorNum, MotorState dir) {
+	    String message = "arrived," + currentFloor + "," + dir.name();
+	    
+	    DatagramPacket sendPacket = new DatagramPacket(message.getBytes(), message.length(), schedulerIp, ELEVATOR_SCHEDULER_PORT);
+        try {
+            socket.send(sendPacket);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+	}
 
 	public void receiveExtraWork(MotorState dir, boolean seek) {
 		if(seek) {
@@ -177,6 +187,7 @@ public class ElevatorCar extends Thread {
 							elevButtons[i].pressButton();
 							elevatorDoor.openCloseDoor();
 							reachedDistination = true;
+							arrivedAtFloor(currentFloor, this.direction);
 						}
 					}
 				}

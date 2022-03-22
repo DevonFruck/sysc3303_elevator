@@ -6,21 +6,14 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import scheduler.Scheduler;
 import types.InputEvents;
-import types.MotorState;
 
 import static config.Config.*;
 
 public class FloorSubsystem implements Runnable {
     Floor floorList[] = new Floor[NUM_OF_FLOORS];
-    MotorState arrivedElevator[] = new MotorState[NUM_OF_FLOORS];
-    DatagramPacket receivePacket, sendPacket;
-
-    // socket for sendToScheduler for sending to scheduler. Should be made every
-    // time in function
-    // receiveSocket is made in constructor, for receiving data from scheduler
-    DatagramSocket socket, receiveSocket;
+    
+    DatagramSocket receiveSocket;
     InetAddress ip;
 
     /**
@@ -29,15 +22,13 @@ public class FloorSubsystem implements Runnable {
      */
     public FloorSubsystem() {
         try {
-            this.receiveSocket = new DatagramSocket(FLOOR_SCHEDULER_PORT);
-            this.socket = new DatagramSocket();
+            this.receiveSocket = new DatagramSocket(FLOOR_SUBSYS_PORT);
             this.ip = InetAddress.getByName(DEFAULT);
         } catch (UnknownHostException | SocketException e) {
             e.printStackTrace();
         }
 
         for (int i = 0; i < NUM_OF_FLOORS; i++) {
-            this.arrivedElevator[i] = null;
             this.floorList[i] = (new Floor(this, i));
         }
 
@@ -46,14 +37,20 @@ public class FloorSubsystem implements Runnable {
         }
     }
 
-
-    public void sendToScheduler(InputEvents data) throws IOException {
+    /**
+     * Called by the floors to send a elevator request to the scheduler.
+     * Creates a new socket, sends the data, and closes the socket.
+     * @param data
+     */
+    public void sendToScheduler(InputEvents data) {
         byte[] sendData = new String(data.getTime() + "," + data.getInitialFloor() + ","
                 + (data.isGoingUp() ? "up" : "down") + "," + data.getDestinationFloor() + ",").getBytes();
         
         try {
-            this.sendPacket = new DatagramPacket(sendData, sendData.length, ip, FLOOR_SCHEDULER_PORT);
-            this.socket.send(sendPacket);
+            DatagramSocket socket = new DatagramSocket();
+            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, ip, FLOOR_SCHEDULER_PORT);
+            socket.send(sendPacket);
+            socket.close();
         } catch (IOException | IllegalArgumentException e) {
             e.printStackTrace();
         }
@@ -65,13 +62,14 @@ public class FloorSubsystem implements Runnable {
      */
     public void getFromScheduler() {
         byte data[] = new byte[100];
-
+        DatagramPacket receivePacket = new DatagramPacket(data, data.length);
+        
         try {
-            this.receivePacket = new DatagramPacket(data, data.length);
-            receiveSocket.receive(receivePacket);
+            this.receiveSocket.receive(receivePacket);
         } catch (IOException | IllegalArgumentException e) {
             e.printStackTrace();
         }
+        System.out.println("SUBSYS RECEIVED NOTIF");
 
         String receivedData[] = new String(receivePacket.getData()).trim().split(",");
 
@@ -81,8 +79,10 @@ public class FloorSubsystem implements Runnable {
         if (receivedData[1].equals("up")) {
             isGoingUp = true;
         }
+        
+        int floorNum = Integer.parseInt(receivedData[0]);
 
-        floorList[Integer.parseInt(receivedData[0])].elevatorArrived(isGoingUp);
+        floorList[floorNum].elevatorArrived(isGoingUp);
     }
 
 

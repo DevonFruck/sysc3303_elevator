@@ -17,7 +17,6 @@ public class Scheduler {
 	//A queue that stores a list of requested events that came from floors
 	private LinkedList<InputEvents> events;
 	
-	
 	int eventsEmptyCount = 0;
 
 	/**
@@ -57,15 +56,17 @@ public class Scheduler {
 		elevatorSchedulerSubThread.start();
 
 		
-		FloorSubsystem floorSystem = new FloorSubsystem();
-
+		Thread floorSystem = new Thread(new FloorSubsystem());
+		floorSystem.start();
+		
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		ElevatorSubsystem elevSystem = new ElevatorSubsystem();
+		
+		@SuppressWarnings("unused")
+        ElevatorSubsystem elevSystem = new ElevatorSubsystem();
 	}
 
 	public synchronized String scheduleEvents(int currentFloor, MotorState dir) {

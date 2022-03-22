@@ -3,7 +3,10 @@ package scheduler;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
+
 import types.MotorState;
 
 import static config.Config.*;
@@ -17,7 +20,8 @@ public class ElevatorSchedulerThread extends Thread {
 
 	private DatagramPacket receivePacket, sendPacket;
 	private DatagramSocket socket;
-
+	InetAddress floorSubsysIp;
+	
 	/**
 	 * Creates a thread for the elevator operation
 	 * @param scheduler The scheduler to make the request to
@@ -26,7 +30,8 @@ public class ElevatorSchedulerThread extends Thread {
 		this.scheduler = scheduler;
 		try {
 			this.socket= new DatagramSocket(ELEVATOR_SCHEDULER_PORT);
-		} catch (SocketException e) {
+			this.floorSubsysIp = InetAddress.getByName(DEFAULT);
+		} catch (SocketException | UnknownHostException e) {
 			e.printStackTrace();
 		}
 	}
@@ -45,12 +50,23 @@ public class ElevatorSchedulerThread extends Thread {
 				e.printStackTrace();
 			}
 			String receivedData = new String(receivePacket.getData());
-			String parsedData[] = receivedData.split(",");
+			String parsedData[] = receivedData.trim().split(",");
+			
+			String command = parsedData[0];
+			int floorNum = Integer.parseInt(parsedData[1]);
+			String direction = parsedData[2];
 
-			switch (parsedData[0]) {
+			switch (command) {
+			
+			// An elevator has arrived at a new floor and is requesting more jobs
 			case "seekWork":
-				this.handleSeekWork(Integer.parseInt(parsedData[1]), parsedData[2].trim());
+				this.handleSeekWork(floorNum, direction);
 				break;
+			
+			// An elevator has arrived at one of its target floors
+			case "arrived":
+			    this.handleArrived(floorNum, direction);
+			    break;
 			}
 		}
 	}
@@ -73,6 +89,26 @@ public class ElevatorSchedulerThread extends Thread {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	
+	/**
+	 * Handles when an elevator has arrived at a target floor.
+	 * 
+	 * @param currentFloor The floor the elevator is at.
+	 * @param direction The direction of the elevator.
+	 */
+	private void handleArrived(int currentFloor, String direction) {
+	    byte[] message = new String(currentFloor+ "," +direction).getBytes();
+	    
+	    try {
+	        DatagramPacket sendPacket = new DatagramPacket(message, message.length, floorSubsysIp, FLOOR_SUBSYS_PORT);
+            DatagramSocket socket = new DatagramSocket();
+            socket.send(sendPacket);
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 	}
 
 }

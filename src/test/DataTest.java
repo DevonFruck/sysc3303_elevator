@@ -2,17 +2,12 @@ package test;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
-
+import java.time.LocalTime;
 import floorSubsystem.Floor;
 import floorSubsystem.FloorSubsystem;
-
-import java.net.SocketException;
-import java.time.LocalTime;
-
 import scheduler.Scheduler;
 import types.EventsHandler;
-
-import types.MotorState;
+//import types.MotorState;
 
 /**
  * Junit 5 testing for the all the data to be read in the system.
@@ -27,13 +22,9 @@ class DataTest{
     void testsForElevatorCommunication() throws InterruptedException{
 //     Initiating all the classes
         FloorSubsystem subsystem;
-        try {
-            subsystem = new FloorSubsystem();
-            Floor floor = new Floor(subsystem, 1); 
-        } catch (SocketException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        
+        subsystem = new FloorSubsystem();
+        Floor floor = new Floor(subsystem, 1); 
 
         Thread.sleep(2000);
 
@@ -45,13 +36,12 @@ class DataTest{
     @Test
     void FloorTest() throws InterruptedException {
         FloorSubsystem subsystem;
-        try {
-            subsystem = new FloorSubsystem();
-            Floor floor = new Floor(subsystem, 1);
-        } catch (SocketException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        
+        subsystem = new FloorSubsystem();
+        Floor floor = new Floor(subsystem, 7);
+        
+        assertEquals(7, floor.getFloorNumber());
+        
     }
 
     @Test

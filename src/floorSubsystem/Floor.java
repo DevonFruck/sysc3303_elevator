@@ -1,6 +1,5 @@
 package floorSubsystem;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import types.InputEvents;
 
@@ -10,7 +9,6 @@ import types.InputEvents;
  */
 public class Floor extends Thread {
     int floorNumber;
-    // Scheduler scheduler;
     FloorSubsystem subsys;
     ArrayList<InputEvents> events;
     FloorButton floorButtons[];
@@ -45,8 +43,10 @@ public class Floor extends Thread {
      * data into InputEvent types and adds them to the floor queue.
      */
     public void readEvents() {
+        String currentDir = System.getProperty("user.dir");
+        
         ArrayList<InputEvents> arr = new ArrayList<InputEvents>();
-        arr.addAll(TxtFileReader.getEvents("floorSubsystem/input.txt"));
+        arr.addAll(TxtFileReader.getEvents(currentDir + "/src/floorSubsystem/input.txt"));
         for (int i = 0; i < arr.size(); i++) {
             InputEvents temp = arr.get(i);
             if (temp.getInitialFloor() == this.floorNumber) {
@@ -54,55 +54,35 @@ public class Floor extends Thread {
             }
         }
     }
-
+    
+    
+    /**
+     * Removes an event from the queue and sends it to the scheduler.
+     * The button for which direction is desired is lit up.
+     */
     public void requestElevator() {
         InputEvents a = events.remove(0);
-        try {
-//        	System.out.println("FLOOR #:"+floorNumber+ "--> Sending this message: "+a);
-            subsys.sendToScheduler(a);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        
+        // System.out.println("FLOOR #:"+floorNumber+ "--> Sending this message: "+a);
+        subsys.sendToScheduler(a);
+
         if (a.isGoingUp()) 
             floorButtons[0].pressButton(); 
         else 
             floorButtons[1].pressButton();
     }
     
+    
     /**
-     * Invoked by the scheduler when the requested elevator has arrived at the
-     * floor.
+     * Returns the current event list of the floor.
+     * 
+     * @return events
      */
-//    public void elevatorArrived() {
-//        System.out.println("Elevator has arrived on floor: " + floorNumber);
-//    }
-
     public ArrayList<InputEvents> getEventList() {
         return events;
     }
-
-//    public void receiveEvent() throws IllegalArgumentException {
-//        MotorState state;
-//        try {
-//            state = subsys.getElevatorArrived(this.floorNumber-1);
-//            
-//            if(state == MotorState.DOWN) {
-//                floorButtons[1].pressButton();
-//            }
-//            
-//            else if(state == MotorState.UP) {
-//                floorButtons[0].pressButton();
-//            }
-//              
-//            this.elevatorArrived();
-//            
-//        } catch (IllegalArgumentException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
-//    }
-
+    
+    
     /**
      * Send a floor input event to the scheduler.
      * 
@@ -111,7 +91,14 @@ public class Floor extends Thread {
     public void sendEvent(InputEvents event) {
         // scheduler.addEvent(event);
     }
-
+    
+    
+    /**
+     * Invoked by the floor subsystem to notify the floor of
+     * the arrival of an elevator.
+     * 
+     * @param goingUp Whether the arriving elevator is going up or down.
+     */
     public void elevatorArrived(boolean goingUp) {
         System.out.println("Elevator arrived at floor " +floorNumber);
         
@@ -121,7 +108,8 @@ public class Floor extends Thread {
             floorButtons[1].pressButton();
         }
     }
-
+    
+    
     @Override
     public void run() {
     	this.readEvents();
@@ -131,5 +119,4 @@ public class Floor extends Thread {
             }
         }
     }
-
 }

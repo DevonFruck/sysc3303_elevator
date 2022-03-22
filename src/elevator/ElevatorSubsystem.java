@@ -1,23 +1,8 @@
-/**
- * 
- */
 package elevator;
-
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-
-import scheduler.ElevatorSchedulerThread;
-import scheduler.Scheduler;
-import types.MotorState;
 
 import static config.Config.*;
 /**
- * @author Group 9
- *
+ * @author SYSC3303 W2022 Group 9
  */
 public class ElevatorSubsystem {
 	

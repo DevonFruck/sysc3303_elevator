@@ -90,5 +90,22 @@ public class ErrorHandler implements InputEvents{
 		return "Time: " + time + "\nTrivial-error: " + TrivError + "\nSerious-error: " + SerError + "\nElevator: " + faultyElevator + "\n";
 	}
 
+	@Override
+	public MotorState getMotorState() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean isElevatorTaken() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void elevatorTakeEvent() {
+		// TODO Auto-generated method stub
+	}
+
 	
 }

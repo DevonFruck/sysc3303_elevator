@@ -13,6 +13,8 @@ public class EventsHandler implements InputEvents {
 	private int initialFloor; //Initial floor, floor that requested the elevator
 	private boolean isUp; //Direction of elevator movement
 	private int destinationFloor;//Destination of the elevator/user
+	private String error; //error: if 0, no error.  If 1, trivial.   If 2, serious
+	
 	private boolean isElevatorTaken;//Is elevator taken
 	private MotorState motorState;
 	
@@ -26,8 +28,15 @@ public class EventsHandler implements InputEvents {
 		String[] inputs = input.split(",");
 		this.time = LocalTime.parse(inputs[0]);
 		this.initialFloor = Integer.valueOf(inputs[1]);
-		this.motorState = inputs[2].equalsIgnoreCase("up") ? MotorState.UP : MotorState.DOWN;
+		this.motorState = inputs[2].equalsIgnoreCase("Up") ? MotorState.UP : MotorState.DOWN;
 		this.destinationFloor = Integer.valueOf(inputs[3]);
+		if(inputs[4].equals("Serious")) {
+			this.error = "Serious";
+		}else if(inputs[4].equals("Trivial")){
+			this.error = "Trivial";
+		}else {
+			this.error = "NA";
+		}
 	}
 
 	//Get time
@@ -55,6 +64,12 @@ public class EventsHandler implements InputEvents {
 	@Override
 	public boolean isGoingUp() {
 		return this.isUp;
+	}
+	
+	
+	//Get error code
+	public String getError() {
+		return this.error;
 	}
 
 	/*
@@ -85,7 +100,13 @@ public class EventsHandler implements InputEvents {
 	//Print results
 	@Override
 	public String toString() {
-		return "Time: " + time + "\nFloor: " + initialFloor + "\nFloor-button: " + (isUp ? "Up" : "Down") + "\nDestination: " + destinationFloor + "\n";
+		if(error.equals("NA")) {
+			return "Time: " + time + "\nFloor: " + initialFloor + "\nFloor-button: " + motorState.name() + "\nDestination: " + destinationFloor + "\n";
+//			return "Time: " + time + "\nFloor: " + initialFloor + "\nFloor-button: " + (isUp ? "Up" : "Down") + "\nDestination: " + destinationFloor + "\n";
+		}else {
+			return "Time: " + time + "\nFloor: " + initialFloor + "\nFloor-button: " + motorState.name() + "\nDestination: " + destinationFloor + "\nError: " + error + "\n";
+		}
+		
 	}
 
 	@Override

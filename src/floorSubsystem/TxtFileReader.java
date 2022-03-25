@@ -2,7 +2,7 @@ package floorSubsystem;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import types.ErrorHandler;
+//import types.ErrorHandler;
 import types.EventsHandler;
 import types.InputEvents;
 
@@ -27,15 +27,16 @@ public class TxtFileReader {
 			String readLine;
 			readLine = fileReader.readLine();
 			while (readLine != null) {
-				if (readLine.split("\\|")[0].equalsIgnoreCase("User")) { //Checks if this is a user event
-					//event with no errors/faults
+//				if (readLine.split("\\|")[0].equalsIgnoreCase("User")) { //Checks if this is a user event
+//					//event with no errors/faults
 					EventsHandler event = new EventsHandler(readLine.split("\\|")[1]);
 					eventList.add(event); //adds current event to the array list
-				} else {
-					//Handling faulty events
-					ErrorHandler event = new ErrorHandler(readLine.split("\\|")[1]);
-					eventList.add(event);
-				}
+//				} 
+//				else {
+//					//Handling faulty events
+//					ErrorHandler event = new ErrorHandler(readLine.split("\\|")[1]);
+//					eventList.add(event);
+//				}
 				readLine = fileReader.readLine();
 			}
 			fileReader.close();

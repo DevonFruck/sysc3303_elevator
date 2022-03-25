@@ -20,6 +20,8 @@ public interface InputEvents {
 	boolean isGoingUp();
 	//Return elevator's state/moving direction
 	MotorState getMotorState();
+	//Return error code
+	String getError();
 	//Boolean method to see if the error/fault is serious
 	boolean isSeriousError();
 	//Boolean method to see if the error/fault is trivial 

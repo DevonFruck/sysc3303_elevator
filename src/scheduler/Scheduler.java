@@ -34,6 +34,10 @@ public class Scheduler {
 		notifyAll();
 		return this.events;
 	}
+	
+	public InputEvents removeQueueElement() {
+	    return events.remove(0);
+	}
 
 	/**
 	 * method that allows a floor to add an event to the events queue

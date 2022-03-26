@@ -22,6 +22,8 @@ public class ElevatorSchedulerThread extends Thread {
 	private DatagramSocket socket;
 	InetAddress floorSubsysIp;
 	
+	boolean isRunning = true;
+	
 	/**
 	 * Creates a thread for the elevator operation
 	 * @param scheduler The scheduler to make the request to
@@ -35,53 +37,70 @@ public class ElevatorSchedulerThread extends Thread {
 			e.printStackTrace();
 		}
 	}
+	
+	public void shutDown() {
+	    isRunning  = false;
+	}
+	
+	public String receiveRequest() {
+	    byte[] data = new byte[100];
+
+        receivePacket = new DatagramPacket(data, data.length);
+        try {
+            socket.receive(receivePacket);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return new String(receivePacket.getData()).trim();
+	}
+	
+	public void evaluateRequest(String command, int floorNum, String direction) {
+	    switch (command) {
+        
+        // An elevator has arrived at a new floor and is requesting more jobs
+        case "seekWork":
+            this.handleSeekWork(floorNum, direction);
+            break;
+        
+        // An elevator has arrived at one of its target floors
+        case "arrived":
+            this.handleArrived(floorNum, direction);
+            break;
+        }
+	}
 
 	/**
 	 * This method calls the appropriate scheduler message and returns whatever needed via UDP 
 	 */
 	public void run() {
-		while(true) {
-			byte[] data = new byte[100];
-
-			receivePacket = new DatagramPacket(data, data.length);
-			try {
-				socket.receive(receivePacket);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			String receivedData = new String(receivePacket.getData());
-			String parsedData[] = receivedData.trim().split(",");
+		while(isRunning) {
+			String parsedData[] = receiveRequest().split(",");
 			
 			String command = parsedData[0];
 			int floorNum = Integer.parseInt(parsedData[1]);
 			String direction = parsedData[2];
-
-			switch (command) {
 			
-			// An elevator has arrived at a new floor and is requesting more jobs
-			case "seekWork":
-				this.handleSeekWork(floorNum, direction);
-				break;
-			
-			// An elevator has arrived at one of its target floors
-			case "arrived":
-			    this.handleArrived(floorNum, direction);
-			    break;
-			}
+			evaluateRequest(command, floorNum, direction);
 		}
+		socket.close();
 	}
 
 	private void handleSeekWork(int currentFloor, String direction) {
 		try {
 			String response;
+			
+			//Convert the direction string into the enum
+			MotorState state = null;
 			if(direction.equals("IDLE")) {
-				response = scheduler.scheduleEvents(currentFloor, MotorState.IDLE);
-			}else if(direction.equals("UP")) {
-				response = scheduler.scheduleEvents(currentFloor, MotorState.UP);
-			}else {
-				response = scheduler.scheduleEvents(currentFloor, MotorState.DOWN);
+				state = MotorState.IDLE;
+			}else if (direction.equals("UP")) {
+			    state =  MotorState.UP;
+			}else if (direction.equals("DOWN")) {
+			    state = MotorState.DOWN;
 			}
-
+			
+			response = scheduler.scheduleEvents(currentFloor, state);
+			
 			byte[] message = response.getBytes();
 			sendPacket = new DatagramPacket(message, message.length, receivePacket.getAddress(), receivePacket.getPort());
 			socket.send(sendPacket);

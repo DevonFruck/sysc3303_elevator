@@ -82,6 +82,7 @@ public class ElevatorSchedulerThread extends Thread {
 			
 			evaluateRequest(command, floorNum, direction);
 		}
+		System.out.println("scheduler thread shut down");
 		socket.close();
 	}
 

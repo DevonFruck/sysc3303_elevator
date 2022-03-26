@@ -6,7 +6,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 import types.EventsHandler;
@@ -76,6 +75,14 @@ public class ElevatorCar extends Thread {
 		}
 	}
 	
+	public boolean getIsRunning() {
+	    return isRunning;
+	}
+	
+	public void shutDown() {
+	    isRunning = false;
+	}
+	
 	public MotorState getMotorState() {
 	    return this.direction;
 	}
@@ -87,6 +94,10 @@ public class ElevatorCar extends Thread {
 	public boolean isSeeking() {
         return this.keepSeeking;
     }
+	
+	public int getCurrentFloor() {
+	    return currentFloor;
+	}
 	
 	public void arrivedAtFloor(int floorNum, MotorState dir) {
 	    String message = "arrived," + currentFloor + "," + dir.name();
@@ -136,7 +147,7 @@ public class ElevatorCar extends Thread {
 		}
 
 	}
-
+	
 	public void run() {
 		while (isRunning) {
 			receiveExtraWork(this.direction, keepSeeking);
@@ -158,7 +169,7 @@ public class ElevatorCar extends Thread {
 								this.direction = MotorState.DOWN;
 							}
 							currentFloor = motor.moveElevator(currentFloor, id, direction == MotorState.UP ? true : false, events.get(i).getError());
-						}else {//in intial floor
+						}else {//in initial floor
 							if(events.get(i).getDestinationFloor()>this.currentFloor) {
 								this.direction = MotorState.UP;
 							}else {
@@ -199,5 +210,6 @@ public class ElevatorCar extends Thread {
 				e.printStackTrace();
 			}
 		}
+		socket.close();
 	}
 }

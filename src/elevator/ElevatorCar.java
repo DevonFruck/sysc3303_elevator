@@ -7,7 +7,9 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
+import types.EventsHandler;
 import types.InputEvents;
 import types.MotorState;
 
@@ -18,9 +20,8 @@ import static config.Config.*;
  */
 public class ElevatorCar extends Thread {
 
-	// floors the elevator must visit
-	ArrayList<Integer> workList = new ArrayList<Integer>();
-	ArrayList<Integer> workListInitialFloor = new ArrayList<Integer>();
+	public boolean isRunning;
+	private LinkedList<InputEvents> events;
 
 	int id;
 	boolean isActive, isDoorOpen, keepSeeking;
@@ -29,7 +30,7 @@ public class ElevatorCar extends Thread {
 	int currentFloor;
 	ElevatorButton elevButtons[] = new ElevatorButton[NUM_OF_FLOORS];
 
-	ElevatorMotor motor = new ElevatorMotor();
+	ElevatorMotor motor = new ElevatorMotor(this);
 	MotorState currentState = MotorState.IDLE;
 	MotorState direction = MotorState.IDLE;
 
@@ -45,6 +46,8 @@ public class ElevatorCar extends Thread {
 	 * @param scheduler The elevator scheduler the class interacts with.
 	 */
 	public ElevatorCar(int id, int initialFloor) {
+		isRunning = true;
+		this.events = new LinkedList<>();
 		this.keepSeeking = true;
 		this.id = id;
 		isActive = false;
@@ -111,24 +114,9 @@ public class ElevatorCar extends Thread {
 					}
 					return;
 				}
-
-				String[] parsedData = responseData.split("&");
-				if(this.direction==MotorState.IDLE) {
-					if(parsedData[0] == "UP" ) {
-						this.direction = MotorState.UP;
-					} 
-					else {
-						this.direction = MotorState.DOWN;
-					}
-				}				
-
-				//adds the floors to the work list
-				String parsedFloors[] = parsedData[1].split(",");
-				workList.add(Integer.parseInt(parsedFloors[0]));
-				workListInitialFloor.add(Integer.parseInt(parsedFloors[1]));
-
-
-
+				
+				InputEvents event = new EventsHandler(responseData);
+				events.add(event);
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -138,28 +126,28 @@ public class ElevatorCar extends Thread {
 	}
 
 	public void run() {
-		while (true) {
+		while (isRunning) {
 			receiveExtraWork(this.direction, keepSeeking);
-			while(workList.size()!=0) {
-				System.out.println("ELEVATOR("+id+") ----- Current Floor: "+this.currentFloor+" -----  Work List: "+ workList);
+			while(events.size()!=0 &&isRunning) {
+				System.out.println("ELEVATOR("+id+") ----- Current Floor: "+this.currentFloor+" -----  Work List: "+ events);
 				receiveExtraWork(this.direction, keepSeeking);
 				boolean initialPicked;
 				boolean reachedDistination;
-				for(int i=0; i<workList.size(); i++) {
+				for(int i=0; i<events.size(); i++) {
 					initialPicked = false;
 					reachedDistination = false;
 
-					while(!initialPicked) {
-						if(currentFloor!=workListInitialFloor.get(i)) {
+					while(!initialPicked && isRunning) {
+						if(currentFloor!=events.get(i).getInitialFloor()) {
 							initialPicked = false;
-							if(workListInitialFloor.get(i)>this.currentFloor) {
+							if(events.get(i).getInitialFloor()>this.currentFloor) {
 								this.direction = MotorState.UP;
 							}else{
 								this.direction = MotorState.DOWN;
 							}
-							currentFloor = motor.moveElevator(currentFloor, id, direction == MotorState.UP ? true : false);
+							currentFloor = motor.moveElevator(currentFloor, id, direction == MotorState.UP ? true : false, events.get(i).getError());
 						}else {//in intial floor
-							if(workList.get(i)>this.currentFloor) {
+							if(events.get(i).getDestinationFloor()>this.currentFloor) {
 								this.direction = MotorState.UP;
 							}else {
 								this.direction = MotorState.DOWN;
@@ -168,24 +156,23 @@ public class ElevatorCar extends Thread {
 						}
 					}
 
-					while(!reachedDistination && initialPicked) {
-						if(currentFloor!=workList.get(i)) {
+					while(!reachedDistination && initialPicked && isRunning) {
+						if(currentFloor!=events.get(i).getDestinationFloor()) {
 							reachedDistination = false;
-							if(workList.get(i)>this.currentFloor) {
+							if(events.get(i).getDestinationFloor()>this.currentFloor) {
 								this.direction = MotorState.UP;
 							}else{
 								this.direction = MotorState.DOWN;
 							}
-							currentFloor = motor.moveElevator(currentFloor, id, direction == MotorState.UP ? true : false);
+							currentFloor = motor.moveElevator(currentFloor, id, direction == MotorState.UP ? true : false, events.get(i).getError());
 						}
 						else {//currentFloor matches destination
 							System.out.println("______________________________________________________________________");
-							System.out.println("Elevator("+id+") PICKED FROM FLOOR --> "+workListInitialFloor.get(i));
+							System.out.println("Elevator("+id+") PICKED FROM FLOOR --> "+events.get(i).getInitialFloor());
 							System.out.println("Elevator("+id+") ARRIVED @ DESTINATION FLOOR --> "+currentFloor);
-							workList.remove(i);
-							workListInitialFloor.remove(i);
+							elevatorDoor.openCloseDoor(id, events.get(i).getError());
 							elevButtons[i].pressButton();
-							elevatorDoor.openCloseDoor();
+							events.remove(i);
 							reachedDistination = true;
 							arrivedAtFloor(currentFloor, this.direction);
 						}

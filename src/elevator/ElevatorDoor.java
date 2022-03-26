@@ -25,16 +25,27 @@ public class ElevatorDoor {
 		this.doorStatus = true;
 	}
 	
-	public void openCloseDoor() {
+	public void openCloseDoor(int id, String error) {
+		int time = 500;
+		if(error.equals("Trivial")) {
+	    	time = 9000;
+	    }
 	    this.doorStatus = true;
-	    System.out.println("Elevator door open");
+	    System.out.println("Elevator("+ id+") door open");
+	    if(time!=500) {
+	    	System.out.println("Elevator("+ id+") door is jammed, door not closing");
+	    }
 	    try {
-            Thread.sleep(500);
+            Thread.sleep(time);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-	    System.out.println("Elevator door close");
+	    if(time!=500) {
+	    	System.out.println("Elevator("+id+") door is working again after apprx "+(time/1000)+" seconds, now closing");
+	    }else {
+	    	System.out.println("Elevator("+ id+") door close");
+	    }
 	}
 	
 	/**

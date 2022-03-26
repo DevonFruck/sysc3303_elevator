@@ -41,9 +41,11 @@ public class FloorSchedulerThread extends Thread {
 
 				receiveSocket.receive(receivePacket);
 
-				String data = new String(receivePacket.getData());
+				String data = new String(receivePacket.getData()).trim();
+				
 
 				InputEvents newEvent = new EventsHandler(data);
+				
 				
 				this.scheduler.acceptEvent(newEvent); 
 			}

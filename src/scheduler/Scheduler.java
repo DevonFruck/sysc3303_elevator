@@ -70,9 +70,11 @@ public class Scheduler {
 	}
 
 	public synchronized String scheduleEvents(int currentFloor, MotorState dir) {
+		String time="";
 		String initialFloor="";
 		String direction = "";
 		String floors = "";
+		String errorCode = "";
 		if(this.events.isEmpty()) {
 			if(eventsEmptyCount<3) {
 				eventsEmptyCount++;
@@ -80,22 +82,25 @@ public class Scheduler {
 			}else {
 				return "EMPTY";
 			}
-			
 		}
 		for(InputEvents e: this.events) {
 			if(dir==MotorState.IDLE) {
-				direction = (e.getMotorState().name())+"&";
+				time += e.getTime().toString()+",";
+				direction = (e.getMotorState().name())+",";
 				floors+=e.getDestinationFloor()+",";
 				initialFloor += e.getInitialFloor()+",";
+				errorCode += e.getError();
 				this.events.remove(e);
-				return direction + floors + initialFloor;
+				return time + initialFloor+ direction + floors  + errorCode;
 			}
 			else if(currentFloor==e.getInitialFloor() && dir==e.getMotorState()){
-				direction = (e.getMotorState().name())+"&";
+				time += e.getTime().toString()+",";
+				direction = (e.getMotorState().name())+",";
 				floors+=e.getDestinationFloor()+",";
 				initialFloor += e.getInitialFloor()+",";
+				errorCode += e.getError();
 				this.events.remove(e);
-				return direction + floors + initialFloor;
+				return time + initialFloor+ direction + floors  + errorCode;
 			}
 		}
 		if(floors.equals("")){

@@ -8,11 +8,13 @@ import static config.Config.*;
 public class ElevatorMotor {
 	
 	private MotorState status;
+	private ElevatorCar elevator;
 	/**
 	 * ElevatorMotor constructor
 	 * Defaults the elevator motor to idle 
 	 */
-	public ElevatorMotor() {
+	public ElevatorMotor(ElevatorCar elevator) {
+		this.elevator = elevator;
 		status = MotorState.IDLE;
 	}
 	
@@ -36,9 +38,15 @@ public class ElevatorMotor {
 	/**
 	 * Actually moves the elevator
 	 */
-	public int moveElevator(int currFloor, int id, boolean isUp) {
-	    try {
-            Thread.sleep(3000);
+	public int moveElevator(int currFloor, int id, boolean isUp, String error) {
+		int time = 3000;
+		if(error.equals("Serious")) {
+	    	System.out.println("Fatal Error, Shutting down elevator: "+id);
+	    	this.elevator.isRunning = false;
+	    	return currFloor;
+	    }
+		try {
+            Thread.sleep(time);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

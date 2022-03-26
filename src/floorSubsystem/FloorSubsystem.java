@@ -44,7 +44,7 @@ public class FloorSubsystem implements Runnable {
      */
     public void sendToScheduler(InputEvents data) {
         byte[] sendData = new String(data.getTime() + "," + data.getInitialFloor() + ","
-                + (data.isGoingUp() ? "up" : "down") + "," + data.getDestinationFloor() + ",").getBytes();
+                + (data.getMotorState().name()) + "," + data.getDestinationFloor() + "," + data.getError()).getBytes();
         
         try {
             DatagramSocket socket = new DatagramSocket();

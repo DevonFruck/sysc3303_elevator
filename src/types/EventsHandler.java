@@ -30,7 +30,9 @@ public class EventsHandler implements InputEvents {
 		this.initialFloor = Integer.valueOf(inputs[1]);
 		this.motorState = inputs[2].equalsIgnoreCase("Up") ? MotorState.UP : MotorState.DOWN;
 		this.destinationFloor = Integer.valueOf(inputs[3]);
-		if(inputs[4].equals("Serious")) {
+		if(inputs.length == 4) {
+		    this.error = "NA";
+		}else if(inputs[4].equals("Serious")) {
 			this.error = "Serious";
 		}else if(inputs[4].equals("Trivial")){
 			this.error = "Trivial";
@@ -122,5 +124,30 @@ public class EventsHandler implements InputEvents {
 	@Override
 	public void elevatorTakeEvent() {
 		this.isElevatorTaken=true;
+	}
+	
+	@Override 
+	public boolean equals(Object obj) {
+	    if (obj == this)
+            return true;
+            
+        if (obj == null || !(obj instanceof EventsHandler)) 
+            return false;
+        EventsHandler testEvents = (EventsHandler) obj;
+	   
+	    if(!(testEvents.getTime().equals(this.getTime()))) return false;
+	    if(!(testEvents.getInitialFloor() == this.getInitialFloor())) return false;
+	    if(!(testEvents.getDestinationFloor() == this.getDestinationFloor())) return false;
+	    if(!(testEvents.isGoingUp() == this.isGoingUp())) return false;
+	    if(!(testEvents.getError().equals(this.getError()))) return false;
+	    if(!(testEvents.isSeriousError() == this.isSeriousError())) return false;
+	    if(!(testEvents.isTrivialError() == this.isTrivialError())) return false;
+	    if(!(testEvents.getElevator() == this.getElevator())) return false;
+	    
+
+	    
+	       
+        
+	    return true;
 	}
 }

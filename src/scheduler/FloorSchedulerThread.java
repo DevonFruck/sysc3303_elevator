@@ -32,6 +32,25 @@ public class FloorSchedulerThread extends Thread {
 	/**
 	 * This method calls the scheduler's acceptEvent() method and sends a message to the source floor once the event has been added
 	 */
+	public InputEvents receiveData() {
+	    byte[] floorInputs = new byte[100];
+
+        DatagramPacket receivePacket =  new DatagramPacket(floorInputs, floorInputs.length);
+
+        try {
+            receiveSocket.receive(receivePacket);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        String data = new String(receivePacket.getData()).trim();
+        System.out.print(data);
+        InputEvents newEvent = new EventsHandler(data);
+        
+        return newEvent;
+	    
+	}
 	public void run() {
 		try {
 			while(true) {

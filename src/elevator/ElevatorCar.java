@@ -76,6 +76,18 @@ public class ElevatorCar extends Thread {
 		}
 	}
 	
+	public MotorState getMotorState() {
+	    return this.direction;
+	}
+	
+	public int getElevatorID() {
+	    return this.id;
+	}
+	
+	public boolean isSeeking() {
+        return this.keepSeeking;
+    }
+	
 	public void arrivedAtFloor(int floorNum, MotorState dir) {
 	    String message = "arrived," + currentFloor + "," + dir.name();
 	    

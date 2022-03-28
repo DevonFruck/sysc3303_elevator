@@ -1,5 +1,6 @@
 package scheduler;
 
+import java.awt.event.InputEvent;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -45,31 +46,20 @@ public class FloorSchedulerThread extends Thread {
         }
 
         String data = new String(receivePacket.getData()).trim();
-        System.out.print(data);
         InputEvents newEvent = new EventsHandler(data);
         
         return newEvent;
 	    
 	}
+	
 	public void run() {
 		try {
-			while(true) {
-				byte[] floorInputs = new byte[100];
-
-				DatagramPacket receivePacket =  new DatagramPacket(floorInputs, floorInputs.length);
-
-				receiveSocket.receive(receivePacket);
-
-				String data = new String(receivePacket.getData()).trim();
-				
-
-				InputEvents newEvent = new EventsHandler(data);
-				
-				
+			while(true) {			
+				InputEvents newEvent = receiveData();
 				this.scheduler.acceptEvent(newEvent); 
 			}
 
-		} catch (InterruptedException | IOException e) {
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}

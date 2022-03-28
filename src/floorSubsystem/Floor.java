@@ -49,7 +49,7 @@ public class Floor extends Thread {
 
         //arr.addAll(TxtFileReader.getEvents(currentDir + "/src/floorSubsystem/input.txt"));
         arr.addAll(TxtFileReader.getEvents(currentDir + "/src/floorSubsystem/input.txt"));
-
+        
         for (int i = 0; i < arr.size(); i++) {
             InputEvents temp = arr.get(i);
             if (temp.getInitialFloor() == this.floorNumber) {

@@ -20,12 +20,8 @@ class TxtFileReaderTest {
         
         String input = "User|12:25:15.12,6,Up,9, ";
         EventsHandler event = new EventsHandler(input.split("\\|")[1]);
-        
-//        System.out.println(event);
-//        
-//        System.out.println(arr.get(0));
               
-        //assertTrue(arr.get(0) == event);
+        assertTrue(arr.get(0).equals(event));
         
     }
     

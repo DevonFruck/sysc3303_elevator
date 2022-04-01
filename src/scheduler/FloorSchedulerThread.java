@@ -6,6 +6,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 
+import display.GUI;
 import types.EventsHandler;
 import types.InputEvents;
 
@@ -15,13 +16,14 @@ import static config.Config.*;
  */
 public class FloorSchedulerThread extends Thread {
 	private Scheduler scheduler;
-
+	private GUI display;
 	private DatagramSocket receiveSocket;
 	/**
 	 * Creates a new FloorSubThread for the new event
 	 * @param scheduler The scheduler in which the new event is added to
 	 */
-	public FloorSchedulerThread(Scheduler scheduler) {
+	public FloorSchedulerThread(Scheduler scheduler, GUI display) {
+	    this.display = display;
 		this.scheduler = scheduler;
 		try {
 			this.receiveSocket = new DatagramSocket(FLOOR_SCHEDULER_PORT);

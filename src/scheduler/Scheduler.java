@@ -6,6 +6,7 @@ import elevator.ElevatorSubsystem;
 import floorSubsystem.FloorSubsystem;
 import types.MotorState;
 import types.InputEvents;
+import display.GUI;
 /**
  * Scheduler Class
  * This class is responsible for handling communication between floors and elevators
@@ -53,10 +54,12 @@ public class Scheduler {
 	public static void main(String[] args) throws SocketException {
 		Scheduler scheduler = new Scheduler();
 		
-		FloorSchedulerThread floorSchedulerSubThread = new FloorSchedulerThread(scheduler);
+		GUI display = new GUI();
+		
+		FloorSchedulerThread floorSchedulerSubThread = new FloorSchedulerThread(scheduler, display);
 		floorSchedulerSubThread.start();
 		
-		ElevatorSchedulerThread elevatorSchedulerSubThread = new ElevatorSchedulerThread(scheduler);
+		ElevatorSchedulerThread elevatorSchedulerSubThread = new ElevatorSchedulerThread(scheduler, display);
 		elevatorSchedulerSubThread.start();
 
 		

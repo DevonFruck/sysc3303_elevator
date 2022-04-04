@@ -112,6 +112,19 @@ public class Floor extends Thread {
         }
     }
     
+    public void floorAwaitRequest() {
+        try {
+            synchronized(events) {
+                //Will wait while it has no events to send to scheduler
+                while(events.isEmpty()) {
+                    events.wait(); 
+                }
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    
     
     @Override
     public void run() {
@@ -120,6 +133,9 @@ public class Floor extends Thread {
             while(!this.events.isEmpty()) {
             	this.requestElevator();
             }
+            
+            //Floor will wait for more requests until an event is initiated
+            floorAwaitRequest();
         }
     }
 }

@@ -100,7 +100,7 @@ public class ElevatorCar extends Thread {
 	}
 	
 	public void arrivedAtFloor(int floorNum, MotorState dir) {
-	    String message = "arrived," + currentFloor + "," + dir.name();
+	    String message = "arrived,"+ id  +","+ currentFloor +","+ dir.name();
 	    
 	    DatagramPacket sendPacket = new DatagramPacket(message.getBytes(), message.length(), schedulerIp, ELEVATOR_SCHEDULER_PORT);
         try {
@@ -109,10 +109,22 @@ public class ElevatorCar extends Thread {
             e.printStackTrace();
         }
 	}
+	
+	public void sendFault() {
+	    String message = "fault,"+ id;
+	    
+	    try {
+            sendPacket = new DatagramPacket(message.getBytes(), message.length(), InetAddress.getByName(DEFAULT), ELEVATOR_SCHEDULER_PORT);
+            socket.send(sendPacket);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+	}
 
 	public void receiveExtraWork(MotorState dir, boolean seek) {
 		if(seek) {
-			String message = "seekWork," + currentFloor + "," + dir.name();
+			String message = "seekWork," + id  +","+ currentFloor + "," + dir.name();
 			try {
 				sendPacket = new DatagramPacket(message.getBytes(), message.length(), InetAddress.getByName(DEFAULT), ELEVATOR_SCHEDULER_PORT);
 				socket.send(sendPacket);
@@ -130,18 +142,21 @@ public class ElevatorCar extends Thread {
 				}
 
 				if(responseData.trim().equals("NULL")) {
-					try {
-						Thread.sleep(2000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
+					
+				    //If no events received and no current events in progress, pause for 2 sec
+				    if(events.isEmpty()) {
+    				    try {
+    						Thread.sleep(2000);
+    					} catch (InterruptedException e) {
+    						e.printStackTrace();
+    					}
+				    }
 					return;
 				}
 				
 				InputEvents event = new EventsHandler(responseData);
 				events.add(event);
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		}
@@ -169,6 +184,8 @@ public class ElevatorCar extends Thread {
 								this.direction = MotorState.DOWN;
 							}
 							currentFloor = motor.moveElevator(currentFloor, id, direction == MotorState.UP ? true : false, events.get(i).getError());
+							System.out.println("shoop");
+							receiveExtraWork(this.direction, isRunning);
 						}else {//in initial floor
 							if(events.get(i).getDestinationFloor()>this.currentFloor) {
 								this.direction = MotorState.UP;
@@ -188,6 +205,7 @@ public class ElevatorCar extends Thread {
 								this.direction = MotorState.DOWN;
 							}
 							currentFloor = motor.moveElevator(currentFloor, id, direction == MotorState.UP ? true : false, events.get(i).getError());
+							receiveExtraWork(this.direction, isRunning);
 						}
 						else {//currentFloor matches destination
 							System.out.println("______________________________________________________________________");
@@ -210,6 +228,7 @@ public class ElevatorCar extends Thread {
 				e.printStackTrace();
 			}
 		}
+		this.sendFault();
 		socket.close();
 	}
 }

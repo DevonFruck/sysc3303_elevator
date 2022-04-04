@@ -1,24 +1,31 @@
 package elevator;
 
 import static config.Config.*;
+import java.util.Random;
+
 /**
  * @author SYSC3303 W2022 Group 9
  */
 public class ElevatorSubsystem {
 	
 	public ElevatorSubsystem() {
-		ElevatorCar elevator1 = new ElevatorCar(1, 1);
-    	ElevatorCar elevator2 = new ElevatorCar(2, (int)Math.floor(NUM_OF_FLOORS/2));
-    	ElevatorCar elevator3 = new ElevatorCar(3, NUM_OF_FLOORS);
-    	ElevatorCar elevator4 = new ElevatorCar(4, NUM_OF_FLOORS-2);
-    	
-    	elevator1.start();
-    	elevator2.start();
-    	elevator3.start();
-    	elevator4.start();
+	    // Randomly generate where elevator will start
+	    Random rng = new Random();
+	    int startingFloor;
+	    
+	    ElevatorCar elevators[] = new ElevatorCar[NUM_OF_ELEVATORS];
+	    
+	    for(int i=1; i<=NUM_OF_ELEVATORS; i++) {
+	        startingFloor = rng.nextInt(NUM_OF_FLOORS)+1;
+	        elevators[i-1] = new ElevatorCar(i, startingFloor);
+	    }
+	    
+	    for(ElevatorCar elevator: elevators) {
+            elevator.start();
+        }
 	}
     
     public static void main(String[] args) {
-
+        
     }
 }

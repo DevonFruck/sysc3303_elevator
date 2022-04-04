@@ -15,16 +15,16 @@ import static config.Config.*;
 /**
  * This thread is created for elevator request
  */
-public class ElevatorSchedulerThread extends Thread {	
-
+public class ElevatorSchedulerThread extends Thread {
+    
     private GUI display;
     private Scheduler scheduler;
     private DatagramPacket receivePacket, sendPacket;
     private DatagramSocket socket;
     InetAddress floorSubsysIp;
-
+    
     boolean isRunning = true;
-
+    
     /**
      * Creates a thread for the elevator operation
      * @param scheduler The scheduler to make the request to
@@ -57,17 +57,21 @@ public class ElevatorSchedulerThread extends Thread {
         return new String(receivePacket.getData()).trim();
     }
 
-    public void evaluateRequest(String command, int floorNum, String direction) {
+    public void evaluateRequest(String command, int elevatorId, int floorNum, String direction) {
         switch (command) {
 
         // An elevator has arrived at a new floor and is requesting more jobs
         case "seekWork":
-            this.handleSeekWork(floorNum, direction);
+            this.handleSeekWork(elevatorId, floorNum, direction);
             break;
 
             // An elevator has arrived at one of its target floors
         case "arrived":
-            this.handleArrived(floorNum, direction);
+            this.handleArrived(elevatorId, floorNum, direction);
+            break;
+            
+        case "fault":
+            this.handleFault(elevatorId);
             break;
         }
     }
@@ -78,18 +82,25 @@ public class ElevatorSchedulerThread extends Thread {
     public void run() {
         while(isRunning) {
             String parsedData[] = receiveRequest().split(",");
-
+            
             String command = parsedData[0];
-            int floorNum = Integer.parseInt(parsedData[1]);
-            String direction = parsedData[2];
+            int elevatorId = Integer.parseInt(parsedData[1]);
+            
+            //Handle if fault before we move on
+            if(command.equals("fault")) {
+                handleFault(elevatorId);
+            } else {
+                int floorNum = Integer.parseInt(parsedData[2]);
+                String direction = parsedData[3];
 
-            evaluateRequest(command, floorNum, direction);
+                evaluateRequest(command, elevatorId, floorNum, direction);
+            }
         }
         System.out.println("scheduler thread shut down");
         socket.close();
     }
-
-    private void handleSeekWork(int currentFloor, String direction) {
+    
+    private void handleSeekWork(int elevatorId, int currentFloor, String direction) {
         try {
             String response;
 
@@ -102,9 +113,12 @@ public class ElevatorSchedulerThread extends Thread {
             }else if (direction.equals("DOWN")) {
                 state = MotorState.DOWN;
             }
-
+            
+            if(display != null)
+                display.setFloorStatus(null, elevatorId, currentFloor);
+            
             response = scheduler.scheduleEvents(currentFloor, state);
-
+            
             byte[] message = response.getBytes();
             sendPacket = new DatagramPacket(message, message.length, receivePacket.getAddress(), receivePacket.getPort());
             socket.send(sendPacket);
@@ -121,17 +135,24 @@ public class ElevatorSchedulerThread extends Thread {
      * @param currentFloor The floor the elevator is at.
      * @param direction The direction of the elevator.
      */
-    private void handleArrived(int currentFloor, String direction) {
+    private void handleArrived(int elevatorId, int currentFloor, String direction) {
         byte[] message = new String(currentFloor+ "," +direction).getBytes();
-
+        
         try {
             DatagramPacket sendPacket = new DatagramPacket(message, message.length, floorSubsysIp, FLOOR_SUBSYS_PORT);
             DatagramSocket socket = new DatagramSocket();
             socket.send(sendPacket);
             socket.close();
+            
+            if(display != null)
+                display.setFloorStatus("arrived", elevatorId, currentFloor);
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    private void handleFault(int elevatorId) {
+        display.closeElevator(elevatorId);
     }
 
 }

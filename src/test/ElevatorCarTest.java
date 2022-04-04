@@ -39,7 +39,7 @@ class ElevatorCarTest {
             EventsHandler event = new EventsHandler("14:05:15.32,3,Up,4,Serious");
             sched.acceptEvent(event);
             
-            ElevatorSchedulerThread thread = new ElevatorSchedulerThread(sched);
+            ElevatorSchedulerThread thread = new ElevatorSchedulerThread(sched, null);
             ElevatorCar car = new ElevatorCar(1,2);
             
             car.start();

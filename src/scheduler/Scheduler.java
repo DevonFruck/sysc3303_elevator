@@ -49,14 +49,14 @@ public class Scheduler {
 		this.events.add(event);
 		notifyAll();
 	}
-
-
+	
+	
 	public static void main(String[] args) throws SocketException {
 		Scheduler scheduler = new Scheduler();
 		
 		GUI display = new GUI();
 		
-		FloorSchedulerThread floorSchedulerSubThread = new FloorSchedulerThread(scheduler, display);
+		FloorSchedulerThread floorSchedulerSubThread = new FloorSchedulerThread(scheduler);
 		floorSchedulerSubThread.start();
 		
 		ElevatorSchedulerThread elevatorSchedulerSubThread = new ElevatorSchedulerThread(scheduler, display);

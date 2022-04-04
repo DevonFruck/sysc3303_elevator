@@ -17,7 +17,7 @@ import static config.Config.*;
 class ElevatorSchedulerThreadTest {
     
     static Scheduler scheduler = new Scheduler();
-    static ElevatorSchedulerThread thread = new ElevatorSchedulerThread(scheduler);
+    static ElevatorSchedulerThread thread = new ElevatorSchedulerThread(scheduler, null);
     
     /**
      * Tests the ability for the scheduler to receive data from the elevators.

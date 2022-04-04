@@ -40,7 +40,6 @@ public class FloorSchedulerThread extends Thread {
         try {
             receiveSocket.receive(receivePacket);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 

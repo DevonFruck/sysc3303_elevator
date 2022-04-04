@@ -64,12 +64,18 @@ public class ElevatorSchedulerThread extends Thread {
         case "seekWork":
             this.handleSeekWork(elevatorId, floorNum, direction);
             break;
+        
+        // An elevator looking for events while moving to initial event floor
+        case "seekFartherWork":
+            this.handleSeekFartherWork(elevatorId, floorNum, direction);
+            break;
 
-            // An elevator has arrived at one of its target floors
+        // An elevator has arrived at one of its target floors
         case "arrived":
             this.handleArrived(elevatorId, floorNum, direction);
             break;
-            
+        
+        // An elevator has experienced a fault
         case "fault":
             this.handleFault(elevatorId);
             break;
@@ -96,7 +102,7 @@ public class ElevatorSchedulerThread extends Thread {
                 evaluateRequest(command, elevatorId, floorNum, direction);
             }
         }
-        System.out.println("scheduler thread shut down");
+        System.out.println("scheduler thread shutting down");
         socket.close();
     }
     
@@ -123,6 +129,40 @@ public class ElevatorSchedulerThread extends Thread {
             sendPacket = new DatagramPacket(message, message.length, receivePacket.getAddress(), receivePacket.getPort());
             socket.send(sendPacket);
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private MotorState stringToMotorState(String direction) {
+        MotorState state = null;
+        
+        if(direction.equals("IDLE")) {
+            state = MotorState.IDLE;
+        }else if (direction.equals("UP")) {
+            state =  MotorState.UP;
+        }else if (direction.equals("DOWN")) {
+            state = MotorState.DOWN;
+        }
+        
+        return state;
+    }
+    
+    
+    private void handleSeekFartherWork(int elevatorId, int currentFloor, String direction) {
+        MotorState state = stringToMotorState(direction);
+        
+        if(display != null)
+            display.setFloorStatus(null, elevatorId, currentFloor);
+        
+        String response;
+        response = scheduler.pickUpFartherEvent(elevatorId, currentFloor, state);
+        
+        byte[] message = response.getBytes();
+        sendPacket = new DatagramPacket(message, message.length, receivePacket.getAddress(), receivePacket.getPort());
+        
+        try {
+            socket.send(sendPacket);
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -29,7 +29,7 @@ public class FloorSubsystem implements Runnable {
         }
 
         for (int i = 0; i < NUM_OF_FLOORS; i++) {
-            this.floorList[i] = (new Floor(this, i));
+            this.floorList[i] = (new Floor(this, i+1));
         }
 
         for (Thread floor : this.floorList) {
@@ -69,11 +69,10 @@ public class FloorSubsystem implements Runnable {
         } catch (IOException | IllegalArgumentException e) {
             e.printStackTrace();
         }
-        System.out.println("SUBSYS RECEIVED NOTIF");
-
+        
         String receivedData[] = new String(receivePacket.getData()).trim().split(",");
 
-        // ASSUMING index 0 is floorNumber/id and index 1 is if going up;
+        // index 0 is floorNumber/id and index 1 is if going up;
         boolean isGoingUp = false;
 
         if (receivedData[1].equals("up")) {
@@ -82,7 +81,7 @@ public class FloorSubsystem implements Runnable {
         
         int floorNum = Integer.parseInt(receivedData[0]);
 
-        floorList[floorNum].elevatorArrived(isGoingUp);
+        floorList[floorNum-1].elevatorArrived(isGoingUp);
     }
 
 

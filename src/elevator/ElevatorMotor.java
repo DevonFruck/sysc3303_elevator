@@ -1,4 +1,6 @@
 package elevator;
+
+import java.util.Random;
 import types.MotorState;
 import static config.Config.*;
 /**
@@ -9,6 +11,8 @@ public class ElevatorMotor {
 	
 	private MotorState status;
 	private ElevatorCar elevator;
+	private Random rng;
+	
 	/**
 	 * ElevatorMotor constructor
 	 * Defaults the elevator motor to idle 
@@ -16,6 +20,8 @@ public class ElevatorMotor {
 	public ElevatorMotor(ElevatorCar elevator) {
 		this.elevator = elevator;
 		status = MotorState.IDLE;
+		
+		rng = new Random();
 	}
 	
 	/**
@@ -38,28 +44,31 @@ public class ElevatorMotor {
 	/**
 	 * Actually moves the elevator
 	 */
-	public int moveElevator(int currFloor, int id, boolean isUp, String error) {
+	public int moveElevator(int currFloor, int id, boolean isUp, int faultFlag) {
 		int time = 3000;
-		if(error.equals("Serious")) {
-	    	System.out.println("Fatal Error, Shutting down elevator: "+id);
-	    	this.elevator.isRunning = false;
-	    	return currFloor;
+		if(faultFlag > 0) {
+		    if(rng.nextInt(3) == 1) {
+		        System.out.println("Fatal Error, Shutting down elevator: "+id);
+	            elevator.decrementFaultFlag();
+		        this.elevator.shutDown();
+	            return currFloor;
+		    }
+	    	
 	    }
 		try {
             Thread.sleep(time);
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 	    
 	    int newCurrFloor = currFloor;
 	    if(isUp && currFloor < NUM_OF_FLOORS) {
 	        newCurrFloor = currFloor+1;
-	        System.out.println("Moving elevator(" +id+ ") from " +currFloor+ " to " +newCurrFloor);
+	        //System.out.println("Moving elevator(" +id+ ") from " +currFloor+ " to " +newCurrFloor);
 	    } else {
 	    	if(currFloor > 1) {
 	        newCurrFloor = currFloor-1;
-	        System.out.println("Moving elevator(" +id+ ") from " +currFloor+ " to " +newCurrFloor);
+	        //System.out.println("Moving elevator(" +id+ ") from " +currFloor+ " to " +newCurrFloor);
 	    	}
 	    }
 	    

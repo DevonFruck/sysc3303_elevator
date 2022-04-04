@@ -76,6 +76,8 @@ public class Scheduler {
         ElevatorSubsystem elevSystem = new ElevatorSubsystem();
 	}
 
+	
+	//Pick up event on the way
 	public synchronized String scheduleEvents(int currentFloor, MotorState dir) {
 		String time="";
 		String initialFloor="";
@@ -90,6 +92,8 @@ public class Scheduler {
 				return "EMPTY";
 			}
 		}
+		
+		// Give first event to an idle elevator
 		for(InputEvents e: this.events) {
 			if(dir==MotorState.IDLE) {
 				time += e.getTime().toString()+",";
@@ -100,6 +104,8 @@ public class Scheduler {
 				this.events.remove(e);
 				return time + initialFloor+ direction + floors  + errorCode;
 			}
+			
+			// If elevator is not idle, elevator must be going in same direction and at the initial event floor
 			else if(currentFloor==e.getInitialFloor() && dir==e.getMotorState()){
 				time += e.getTime().toString()+",";
 				direction = (e.getMotorState().name())+",";
@@ -115,37 +121,39 @@ public class Scheduler {
 		}
 		return "";
 	}
-
+	
+	
+	//Pick up event slightly past the floor you're moving to. Usually invoked when
+	//Elevator is moving to the initial floor of its only active event.
+	public synchronized String pickUpFartherEvent(int elevatorId, int currentFloor, MotorState dir) {
+	    String time="";
+        String initialFloor="";
+        String direction = "";
+        String floors = "";
+        String errorCode = "";
+        
+	    for(InputEvents e: this.events) {
+	        int floorDiff;
+	        if(dir == MotorState.UP) {
+	            floorDiff = currentFloor - e.getInitialFloor();
+	        } else {
+	            floorDiff = e.getInitialFloor() - currentFloor;
+	        }
+	        
+	        // Only accept the event if it's within reasonable distance from initial event
+	        boolean goingUp = (dir == MotorState.UP);
+	        if(floorDiff > 0 && floorDiff <=4 && goingUp == e.isGoingUp()) {
+	            time += e.getTime().toString()+",";
+                direction = (e.getMotorState().name())+",";
+                floors+=e.getDestinationFloor()+",";
+                initialFloor += e.getInitialFloor()+",";
+                errorCode += e.getError();
+                
+                System.out.println("Elevator " +elevatorId+ "took event: " + e);
+                this.events.remove(e);
+                return time + initialFloor+ direction + floors  + errorCode;
+	        }
+	    }
+        return "NULL";
+	}
 }
-
-
-
-
-
-/**
- * elevators: (1): 1   (2): 5,  (3):10
- * queue of events:		from 1 to 5,   from 3 to 1,  from 5 to 2,   from 2 to 4   
- * 
- * Loop through queue
- * Check if elevator a/b/c match initial floor
- * (direction == same || direction == idle)
- * 
- * No eligible events return "NULL"						
- */
-
-/**
- * arrived(currentFloor, direction)
- * 
- * arrived, cuurentFloor, Direction
- * 
- * Scheduler class:
- * array booleans floors[floors]  --> []
- * 
- * notifyFloor(currentFloor, direction){
- * 		
- * }
- * 
- */
-
-
-

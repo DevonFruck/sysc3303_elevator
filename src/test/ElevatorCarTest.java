@@ -19,15 +19,13 @@ class ElevatorCarTest {
         ElevatorCar car = new ElevatorCar(1,2);
         
         //verify default status
-        assertEquals(true, car.isRunning);
+        assertEquals(true, car.getIsRunning());
         
         //verify default status
         
         assertEquals(MotorState.IDLE, car.getMotorState());
         
-        assertEquals(1, car.getElevatorID());
-        
-        assertEquals(true, car.isSeeking());  
+        assertEquals(1, car.getID()); 
     }
     
     

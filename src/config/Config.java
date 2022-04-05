@@ -18,7 +18,7 @@ public final class Config {
     private Config() {}
     
     public static final int NUM_OF_ELEVATORS = 4;
-    public static final int NUM_OF_FLOORS = 12;
+    public static final int NUM_OF_FLOORS = 22;
     public static final int ELEVATOR_SCHEDULER_PORT = 25;
     public static final int FLOOR_SCHEDULER_PORT = 75;
     public static final int FLOOR_SUBSYS_PORT = 100;

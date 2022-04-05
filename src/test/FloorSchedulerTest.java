@@ -16,7 +16,7 @@ import static config.Config.*;
 
 public class FloorSchedulerTest {
     static Scheduler scheduler = new Scheduler();
-    static FloorSchedulerThread thread = new FloorSchedulerThread(scheduler);
+    static FloorSchedulerThread thread = new FloorSchedulerThread(scheduler, null);
     
     
     @Test

@@ -74,11 +74,6 @@ public class ElevatorSchedulerThread extends Thread {
         case "arrived":
             this.handleArrived(elevatorId, floorNum, direction);
             break;
-        
-        // An elevator has experienced a fault
-        case "fault":
-            this.handleFault(elevatorId);
-            break;
         }
     }
 
@@ -94,7 +89,9 @@ public class ElevatorSchedulerThread extends Thread {
             
             //Handle if fault before we move on
             if(command.equals("fault")) {
-                handleFault(elevatorId);
+                handleFault(elevatorId, true);
+            } else if(command.equals("trivial")) {
+                handleFault(elevatorId, false);
             } else {
                 int floorNum = Integer.parseInt(parsedData[2]);
                 String direction = parsedData[3];
@@ -184,6 +181,8 @@ public class ElevatorSchedulerThread extends Thread {
             socket.send(sendPacket);
             socket.close();
             
+            display.writeToLog("The " +direction+ " button light turned off for floor " +currentFloor);
+            
             if(display != null)
                 display.setFloorStatus("arrived", elevatorId, currentFloor);
         } catch (IOException e) {
@@ -191,8 +190,14 @@ public class ElevatorSchedulerThread extends Thread {
         }
     }
     
-    private void handleFault(int elevatorId) {
-        display.closeElevator(elevatorId);
+    private void handleFault(int elevatorId, boolean serious) {
+        if(serious) {
+            display.closeElevator(elevatorId);
+            display.writeToLog("Elevator "+elevatorId+ " experienced a fault, shutting down.");
+        } else {
+            display.writeToLog("Elevator " +elevatorId+ " is experiencing issues operating its doors.");
+            display.jamElevator(elevatorId);
+        }
     }
 
 }

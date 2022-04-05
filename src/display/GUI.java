@@ -1,4 +1,5 @@
 package display;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import static config.Config.*;
 import java.awt.GridLayout;
@@ -12,16 +13,28 @@ public class GUI {
     int floorNum = 10;
     private JButton[][] buttons;
     private int[] elevatorPosition;
+    //private boolean[] trivialElevator;
     
     Border emptyBorder = BorderFactory.createEmptyBorder();
-    Border arrivedBorder = BorderFactory.createLineBorder(Color.ORANGE,5);
+    Border arrivedBorder = BorderFactory.createLineBorder(Color.GREEN,4);
     Border defaultBorder = BorderFactory.createLineBorder(Color.BLACK,2);
+    Border trivialBorder = BorderFactory.createLineBorder(Color.YELLOW,5);
+    JTextArea logs;
     
     public GUI() {
-        frameObj = new JFrame();
+        frameObj = new JFrame("SYSC3303 Group 9 Elevator GUI");
+        
+        JPanel container = new JPanel();
+        container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
+        
         buttons = new JButton[NUM_OF_ELEVATORS][NUM_OF_FLOORS];
         elevatorPosition = new int[NUM_OF_ELEVATORS];
-        frameObj.setLayout(new GridLayout(NUM_OF_FLOORS, NUM_OF_ELEVATORS));
+        
+        frameObj.setLayout(new BorderLayout());
+        
+        JPanel elevatorPane = new JPanel();
+        elevatorPane.setLayout(new GridLayout(NUM_OF_FLOORS, NUM_OF_ELEVATORS));
+        
         
         for(int k=0; k<NUM_OF_ELEVATORS; k++) {
             elevatorPosition[k] = 1;
@@ -34,11 +47,26 @@ public class GUI {
                 buttons[i][j].setBackground(Color.WHITE);
                 buttons[i][j].setBorder(defaultBorder);
                 
-                frameObj.add(buttons[i][j]);
+                elevatorPane.add(buttons[i][j]);
             }
         }
         
-        frameObj.setSize(300, 300);
+        frameObj.add(elevatorPane);
+        
+        logs = new JTextArea(5,40);
+        logs.setEditable(false);
+        
+        
+        //frameObj.add(ta1);
+        
+        JScrollPane textPane = new JScrollPane(logs, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        textPane.setBorder(BorderFactory.createTitledBorder("Logs"));
+        
+        container.add(elevatorPane);
+        container.add(textPane);
+        
+        frameObj.add(container);
+        frameObj.setSize(800, 800);
         frameObj.setVisible(true);
     }
     
@@ -48,13 +76,17 @@ public class GUI {
      * @param elevator The number of the active elevator.
      * @param floor The floor number the elevator is having an event happen at.
      */
-    public void setFloorStatus(String event, int elevator, int floor) {
+    public synchronized void setFloorStatus(String event, int elevator, int floor) {
         int elevIndex = elevator-1;
         int floorIndex = floor-1;
         
         //Reset colors for elevators previous floor
-        buttons[elevIndex][elevatorPosition[elevIndex]-1].setBorder(defaultBorder);
+        //buttons[elevIndex][elevatorPosition[elevIndex]-1].setBorder(defaultBorder);
         buttons[elevIndex][elevatorPosition[elevIndex]-1].setBackground(Color.WHITE);
+        
+        for(int i=0; i<NUM_OF_FLOORS; i++) {
+            buttons[elevIndex][i].setBorder(defaultBorder);
+        }
         
         //Update new floor location
         buttons[elevIndex][floorIndex].setBackground(Color.BLACK);
@@ -65,24 +97,24 @@ public class GUI {
         }
     }
     
-    public void closeElevator(int elevatorId) {
+    
+    public synchronized void closeElevator(int elevatorId) {
         int elevIndex = elevatorId-1;
         
         for(int i=0; i<NUM_OF_FLOORS; i++) {
-            buttons[elevIndex][i].setBackground(Color.GRAY);
+            buttons[elevIndex][i].setBackground(Color.RED);
         }
     }
     
+    public synchronized void writeToLog(String message) {
+        logs.append(message + "\n");
+    }
     
-//    public static void main(String args[]) {
-//        GUI gui = new GUI();
-//        //gui.start();
-//        
-//        try {
-//            Thread.sleep(2000);
-//        } catch (InterruptedException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
-//    }
+    public synchronized void jamElevator(int elevatorId) {
+        int elevIndex = elevatorId-1;
+        
+        for(int i=0; i<NUM_OF_FLOORS; i++) {
+            buttons[elevIndex][i].setBorder(trivialBorder);
+        }
+    }
 }

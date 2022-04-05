@@ -24,7 +24,7 @@ public class ElevatorCar extends Thread {
     int currentFloor;
     private LinkedList<InputEvents> events;
     
-    ElevatorDoor elevatorDoor = new ElevatorDoor();
+    ElevatorDoor elevatorDoor = new ElevatorDoor(this);
     ElevatorButton elevButtons[] = new ElevatorButton[NUM_OF_FLOORS];
     ElevatorMotor motor = new ElevatorMotor(this);
     MotorState direction = MotorState.IDLE;
@@ -91,7 +91,7 @@ public class ElevatorCar extends Thread {
      */
     public void shutDown() {
         isRunning = false;
-        sendFault();
+        sendFault(true);
     }
     
     /**
@@ -141,8 +141,13 @@ public class ElevatorCar extends Thread {
     /**
      * Sends a fault message to the elevator scheduler thread and shuts down.
      */
-    public void sendFault() {
-        String message = "fault,"+ id;
+    public void sendFault(boolean serious) {
+        String message;
+        if(serious) {            
+            message = "fault,"+ id;
+        } else {
+            message = "trivial,"+ id;
+        }
 
         try {
             sendPacket = new DatagramPacket(message.getBytes(), message.length(), InetAddress.getByName(DEFAULT), ELEVATOR_SCHEDULER_PORT);
@@ -270,7 +275,7 @@ public class ElevatorCar extends Thread {
         // Iterate through elevator's active events. Triggers doors and buttons if necessary
         for(InputEvents e: events) {
             if(e.getDestinationFloor() == this.currentFloor || e.getInitialFloor() == this.currentFloor) {
-
+                
                 elevatorDoor.openCloseDoor(id, e.getError());
                 elevButtons[this.currentFloor-1].pressButton();
                 arrivedAtFloor(this.currentFloor, this.direction);

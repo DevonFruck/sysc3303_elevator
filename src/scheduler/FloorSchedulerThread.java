@@ -5,8 +5,10 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 
+import display.GUI;
 import types.EventsHandler;
 import types.InputEvents;
+import types.MotorState;
 
 import static config.Config.*;
 /**
@@ -15,13 +17,14 @@ import static config.Config.*;
 public class FloorSchedulerThread extends Thread {
 	private Scheduler scheduler;
 	private DatagramSocket receiveSocket;
-	
+	private GUI display;
 	/**
 	 * Creates a new FloorSubThread for the new event
 	 * @param scheduler The scheduler in which the new event is added to
 	 */
-	public FloorSchedulerThread(Scheduler scheduler) {
+	public FloorSchedulerThread(Scheduler scheduler, GUI display) {
 		this.scheduler = scheduler;
+		this.display = display;
 		try {
 			this.receiveSocket = new DatagramSocket(FLOOR_SCHEDULER_PORT);
 		} catch (SocketException e) {
@@ -45,6 +48,9 @@ public class FloorSchedulerThread extends Thread {
 
         String data = new String(receivePacket.getData()).trim();
         InputEvents newEvent = new EventsHandler(data);
+        
+        String direction = newEvent.getMotorState()==MotorState.UP ? "up" : "down";
+        display.writeToLog("Floor " +newEvent.getInitialFloor()+ " pressed the " + direction + " button");
         
         return newEvent;
 	    

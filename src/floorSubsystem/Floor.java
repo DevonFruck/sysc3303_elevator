@@ -2,7 +2,7 @@ package floorSubsystem;
 
 import java.util.ArrayList;
 import types.InputEvents;
-
+import java.util.Random;
 /**
  * @author L4 Group 9
  *
@@ -12,7 +12,7 @@ public class Floor extends Thread {
     FloorSubsystem subsys;
     ArrayList<InputEvents> events;
     FloorButton floorButtons[];
-
+    Random rng;
     /**
      * Constructor for the Floor class. Initialized the floor number, a reference to
      * the scheduler, it's floor buttons, and an events queue.
@@ -27,6 +27,8 @@ public class Floor extends Thread {
         
         // [0] is up, [1] is down
         floorButtons = new FloorButton[] {new FloorButton(), new FloorButton()};
+        
+        this.rng = new Random();
     }
 
     /**
@@ -131,6 +133,13 @@ public class Floor extends Thread {
     	this.readEvents();
         while (true) {
             while(!this.events.isEmpty()) {
+                
+                try {
+                    Thread.sleep(rng.nextInt(3000)+3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                
             	this.requestElevator();
             }
             

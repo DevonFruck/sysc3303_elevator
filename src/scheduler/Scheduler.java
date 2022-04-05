@@ -56,7 +56,7 @@ public class Scheduler {
 		
 		GUI display = new GUI();
 		
-		FloorSchedulerThread floorSchedulerSubThread = new FloorSchedulerThread(scheduler);
+		FloorSchedulerThread floorSchedulerSubThread = new FloorSchedulerThread(scheduler, display);
 		floorSchedulerSubThread.start();
 		
 		ElevatorSchedulerThread elevatorSchedulerSubThread = new ElevatorSchedulerThread(scheduler, display);

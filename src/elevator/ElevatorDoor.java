@@ -12,8 +12,14 @@ public class ElevatorDoor {
 	 * default the elevator door status to close
 	 * @param int floorNum
 	 */
-	public ElevatorDoor() {
+	
+	ElevatorCar elevator;
+	int doorTime = 2000;
+	int trivialTime = 6000;
+	
+	public ElevatorDoor(ElevatorCar elevator) {
 		this.doorStatus = false;
+		this.elevator = elevator;
 	}
 	
 	/**
@@ -26,26 +32,42 @@ public class ElevatorDoor {
 	}
 	
 	public void openCloseDoor(int id, String error) {
-		int time = 500;
-		if(error.equals("Trivial")) {
-	    	time = 9000;
-	    }
+//		int time = 500;
+//		if(error.equals("Trivial")) {
+//	    	time = 9000;
+//	    }
 	    this.doorStatus = true;
 	    System.out.println("Elevator("+ id+") door open");
-	    if(time!=500) {
-	    	System.out.println("Elevator("+ id+") door is jammed, door not closing");
-	    }
+	    
 	    try {
-            Thread.sleep(time);
+            Thread.sleep(doorTime);
+            
+            if(error.equals("Trivial")) {
+                System.out.println("Elevator("+ id+") door is jammed on floor "+elevator.getCurrentFloor()+", door not closing");
+                elevator.sendFault(false);
+                
+                Thread.sleep(trivialTime);
+                System.out.println("Elevator("+id+") door is working again after apprx "+((doorTime+trivialTime)/1000)+" seconds, now closing");
+            } else {
+                System.out.println("Elevator("+ id+") door close");
+            }
+            this.doorStatus = false;
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-	    if(time!=500) {
-	    	System.out.println("Elevator("+id+") door is working again after apprx "+(time/1000)+" seconds, now closing");
-	    }else {
-	    	System.out.println("Elevator("+ id+") door close");
-	    }
+	    
+//	    try {
+//            Thread.sleep(time);
+//        } catch (InterruptedException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
+//	    if(time!=500) {
+//	    	System.out.println("Elevator("+id+") door is working again after apprx "+(time/1000)+" seconds, now closing");
+//	    }else {
+//	    	System.out.println("Elevator("+ id+") door close");
+//	    }
 	}
 	
 	/**

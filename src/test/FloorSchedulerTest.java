@@ -1,33 +1,22 @@
 package test;
 
-import static config.Config.ELEVATOR_SCHEDULER_PORT;
-
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.sql.Time;
-import java.time.LocalTime;
-
 import org.junit.jupiter.api.Test;
 
-import elevator.ElevatorLamp;
-import floorSubsystem.Floor;
-import floorSubsystem.FloorSubsystem;
-import scheduler.ElevatorSchedulerThread;
 import scheduler.FloorSchedulerThread;
 import scheduler.Scheduler;
 import types.EventsHandler;
-import types.InputData;
 import types.InputEvents;
 import static config.Config.*;
 
 public class FloorSchedulerTest {
     static Scheduler scheduler = new Scheduler();
-    static FloorSchedulerThread thread = new FloorSchedulerThread(scheduler);
+    static FloorSchedulerThread thread = new FloorSchedulerThread(scheduler, null);
     
     
     @Test

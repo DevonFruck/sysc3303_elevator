@@ -2,10 +2,6 @@ package test;
 
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
-import java.time.LocalTime;
-import floorSubsystem.Floor;
-import floorSubsystem.FloorSubsystem;
-import scheduler.Scheduler;
 import types.EventsHandler;
 import types.MotorState;
 //import types.MotorState;

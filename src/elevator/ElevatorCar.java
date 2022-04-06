@@ -18,198 +18,329 @@ import static config.Config.*;
  *
  */
 public class ElevatorCar extends Thread {
+    
+    private int id;
+    private boolean isRunning;
+    int currentFloor;
+    private LinkedList<InputEvents> events;
+    
+    ElevatorDoor elevatorDoor = new ElevatorDoor(this);
+    ElevatorButton elevButtons[] = new ElevatorButton[NUM_OF_FLOORS];
+    ElevatorMotor motor = new ElevatorMotor(this);
+    MotorState direction = MotorState.IDLE;
 
-	public boolean isRunning;
-	private LinkedList<InputEvents> events;
+    DatagramPacket receivePacket, sendPacket;
+    DatagramSocket socket;
+    InetAddress schedulerIp;
+    
+    int faultFlag = 0;
+    int trivialFlag = 0;
+    
 
-	int id;
-	boolean isActive, isDoorOpen, keepSeeking;
-	InputEvents currentEvent;
-	//ElevatorSubsystem subsys;
-	int currentFloor;
-	ElevatorButton elevButtons[] = new ElevatorButton[NUM_OF_FLOORS];
+    /**
+     * Constructor for the ElevatorCar class.
+     * Defines default values for the elevator.
+     * 
+     * @param scheduler The elevator scheduler the class interacts with.
+     */
+    public ElevatorCar(int id, int initialFloor) {
+        isRunning = true;
+        this.events = new LinkedList<>();
+        this.id = id;
+        currentFloor = initialFloor;
+        motor.setStatus(MotorState.IDLE);
 
-	ElevatorMotor motor = new ElevatorMotor(this);
-	MotorState currentState = MotorState.IDLE;
-	MotorState direction = MotorState.IDLE;
-
-	DatagramPacket receivePacket, sendPacket;
-	DatagramSocket socket;
-	InetAddress schedulerIp;
-	ElevatorDoor elevatorDoor = new ElevatorDoor();
-
-	/**
-	 * Constructor for the ElevatorCar class.
-	 * Defines default values for the elevator.
-	 * 
-	 * @param scheduler The elevator scheduler the class interacts with.
-	 */
-	public ElevatorCar(int id, int initialFloor) {
-		isRunning = true;
-		this.events = new LinkedList<>();
-		this.keepSeeking = true;
-		this.id = id;
-		isActive = false;
-		currentEvent = null;
-		currentFloor = initialFloor;
-		isDoorOpen = false;
-		motor.setStatus(MotorState.IDLE);
-
-		for (int i=0; i<NUM_OF_FLOORS; i++) {
-			elevButtons[i] = new ElevatorButton(i+1);
-		}
-
-
-		try {
-			schedulerIp = InetAddress.getByName(DEFAULT);
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		try {
-			socket = new DatagramSocket();
-		} catch (SocketException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	public boolean getIsRunning() {
-	    return isRunning;
-	}
-	
-	public void shutDown() {
-	    isRunning = false;
-	}
-	
-	public MotorState getMotorState() {
-	    return this.direction;
-	}
-	
-	public int getElevatorID() {
-	    return this.id;
-	}
-	
-	public boolean isSeeking() {
-        return this.keepSeeking;
+        for (int i=0; i<NUM_OF_FLOORS; i++) {
+            elevButtons[i] = new ElevatorButton(i+1);
+        }
+        
+        try {
+            schedulerIp = InetAddress.getByName(DEFAULT);
+            socket = new DatagramSocket();
+        } catch (UnknownHostException | SocketException e) {
+            e.printStackTrace();
+        }
     }
-	
-	public int getCurrentFloor() {
-	    return currentFloor;
-	}
-	
-	public void arrivedAtFloor(int floorNum, MotorState dir) {
-	    String message = "arrived," + currentFloor + "," + dir.name();
-	    
-	    DatagramPacket sendPacket = new DatagramPacket(message.getBytes(), message.length(), schedulerIp, ELEVATOR_SCHEDULER_PORT);
+    
+    public void decrementFaultFlag() {
+        faultFlag --;
+    }
+    
+    public void incrementFaultFlag() {
+        faultFlag ++;
+    }
+    
+    public void decrementTrivialFlag() {
+        trivialFlag --;
+    }
+    
+    public void incrementTrivialFlag() {
+        trivialFlag ++;
+    }
+    
+    /**
+     * Get method for if elevator is running.
+     * @return If elevator is running.
+     */
+    public boolean getIsRunning() {
+        return isRunning;
+    }
+    
+    /**
+     * Shuts down the elevator
+     */
+    public void shutDown() {
+        isRunning = false;
+        sendFault(true);
+    }
+    
+    /**
+     * Get method for the elevator's direction.
+     * @return Elevator's direction.
+     */
+    public MotorState getMotorState() {
+        return this.direction;
+    }
+    
+    /**
+     * Get method for the elevator's ID.
+     * @return Elevator ID.
+     */
+    public int getID() {
+        return this.id;
+    }
+    
+    
+    /**
+     * Get method for getting the elevator's current floor.
+     * @return the elevator's current floor.
+     */
+    public int getCurrentFloor() {
+        return currentFloor;
+    }
+    
+    
+    /**
+     * Sends a floor arrival notification to the elevator scheduler.
+     * 
+     * @param floorNum The floor the elevator has arrived at.
+     * @param dir The direction the elevator is heading.
+     */
+    public void arrivedAtFloor(int floorNum, MotorState dir) {
+        String message = "arrived,"+ id  +","+ currentFloor +","+ dir.name();
+
+        DatagramPacket sendPacket = new DatagramPacket(message.getBytes(), message.length(), schedulerIp, ELEVATOR_SCHEDULER_PORT);
         try {
             socket.send(sendPacket);
         } catch (IOException e) {
             e.printStackTrace();
         }
-	}
+    }
 
-	public void receiveExtraWork(MotorState dir, boolean seek) {
-		if(seek) {
-			String message = "seekWork," + currentFloor + "," + dir.name();
-			try {
-				sendPacket = new DatagramPacket(message.getBytes(), message.length(), InetAddress.getByName(DEFAULT), ELEVATOR_SCHEDULER_PORT);
-				socket.send(sendPacket);
+    
+    /**
+     * Sends a fault message to the elevator scheduler thread and shuts down.
+     */
+    public void sendFault(boolean serious) {
+        String message;
+        if(serious) {            
+            message = "fault,"+ id;
+        } else {
+            message = "trivial,"+ id;
+        }
 
-				byte receiveData[] = new byte[100];
-				receivePacket = new DatagramPacket(receiveData, receiveData.length);
+        try {
+            sendPacket = new DatagramPacket(message.getBytes(), message.length(), InetAddress.getByName(DEFAULT), ELEVATOR_SCHEDULER_PORT);
+            socket.send(sendPacket);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-				socket.receive(receivePacket);
+    }
 
-				String responseData = new String(receivePacket.getData()).trim();
+    /*
+     * Find the farthest initial event floor. If the elevator direction is heading
+     * up, it will find the lowest floor, and vice versa. Returns null if at farthest floor.
+     */
+    public InputEvents getFurthestInitialFloorEvent(MotorState dir, int floor) {
+        InputEvents event = null;
+        int farthest = floor;
+        
+        /* Find the difference between current floor and event initial floor.
+         * Difference calculation depends if elevator is going up or down.
+         */
+        if(dir == MotorState.UP) {
+            for(InputEvents e: events) {
+                int initialFloor = e.getInitialFloor();
+                if(initialFloor < farthest) {
+                    farthest = initialFloor;
+                    event = e;
+                }
+            }
+        } else {
+            for(InputEvents e: events) {
+                int initialFloor = e.getInitialFloor();
+                if(initialFloor > farthest) {
+                    farthest = initialFloor;
+                    event = e;
+                }
+            }
+        }
+        return event;
+    }
 
-				if(responseData.trim().equals("EMPTY")) {
-					keepSeeking = false;
-					return;
-				}
+    public void receiveExtraWork(MotorState dir, boolean seek) {
+        if(seek) {
+            String message = "seekWork," + id  +","+ currentFloor + "," + dir.name();
+            String responseData = sendAndReceivePacket(message);
 
-				if(responseData.trim().equals("NULL")) {
-					try {
-						Thread.sleep(2000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					return;
-				}
-				
-				InputEvents event = new EventsHandler(responseData);
-				events.add(event);
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-		}
+            if(responseData.equals("NULL") || responseData.equals("EMPTY")) {
 
-	}
-	
-	public void run() {
-		while (isRunning) {
-			receiveExtraWork(this.direction, keepSeeking);
-			while(events.size()!=0 &&isRunning) {
-				System.out.println("ELEVATOR("+id+") ----- Current Floor: "+this.currentFloor+" -----  Work List: "+ events);
-				receiveExtraWork(this.direction, keepSeeking);
-				boolean initialPicked;
-				boolean reachedDistination;
-				for(int i=0; i<events.size(); i++) {
-					initialPicked = false;
-					reachedDistination = false;
+                //If no events received and no current events in progress, pause for 2 seconds
+                if(events.isEmpty()) {
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                return;
+            }
 
-					while(!initialPicked && isRunning) {
-						if(currentFloor!=events.get(i).getInitialFloor()) {
-							initialPicked = false;
-							if(events.get(i).getInitialFloor()>this.currentFloor) {
-								this.direction = MotorState.UP;
-							}else{
-								this.direction = MotorState.DOWN;
-							}
-							currentFloor = motor.moveElevator(currentFloor, id, direction == MotorState.UP ? true : false, events.get(i).getError());
-						}else {//in initial floor
-							if(events.get(i).getDestinationFloor()>this.currentFloor) {
-								this.direction = MotorState.UP;
-							}else {
-								this.direction = MotorState.DOWN;
-							}
-							initialPicked = true;
-						}
-					}
+            // Create event object and add to active events
+            InputEvents event = new EventsHandler(responseData);
+            events.add(event);
+            
+            // Set direction of elevator
+            this.direction = event.getMotorState();
+        }
 
-					while(!reachedDistination && initialPicked && isRunning) {
-						if(currentFloor!=events.get(i).getDestinationFloor()) {
-							reachedDistination = false;
-							if(events.get(i).getDestinationFloor()>this.currentFloor) {
-								this.direction = MotorState.UP;
-							}else{
-								this.direction = MotorState.DOWN;
-							}
-							currentFloor = motor.moveElevator(currentFloor, id, direction == MotorState.UP ? true : false, events.get(i).getError());
-						}
-						else {//currentFloor matches destination
-							System.out.println("______________________________________________________________________");
-							System.out.println("Elevator("+id+") PICKED FROM FLOOR --> "+events.get(i).getInitialFloor());
-							System.out.println("Elevator("+id+") ARRIVED @ DESTINATION FLOOR --> "+currentFloor);
-							elevatorDoor.openCloseDoor(id, events.get(i).getError());
-							elevButtons[i].pressButton();
-							events.remove(i);
-							reachedDistination = true;
-							arrivedAtFloor(currentFloor, this.direction);
-						}
-					}
-				}
+    }
 
-			}
-			this.direction = MotorState.IDLE;
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-		socket.close();
-	}
+    /**
+     * Sends request to elevator scheduler thread for any jobs that are nearby its
+     * initial floor event and is going the same direction.
+     * 
+     * @param dir The direction the elevator will go to complete its event(s).
+     */
+    public void getFartherJob(MotorState dir) {
+        String message = "seekFartherWork," + id  +","+ currentFloor + "," + dir.name();
+
+        String responseData = sendAndReceivePacket(message);
+
+        if(responseData.equals("EMPTY") || responseData.equals("NULL")) {
+            return;
+        }
+
+        InputEvents event = new EventsHandler(responseData);
+        events.add(event);
+    }
+
+    
+    /**
+     * Takes the string message from the parameter and sends it to the elevator scheduler thread, then waits for a response.
+     * 
+     * @param message The string data to send on the socket.
+     * @return The response data of the elevator scheduler thread.
+     */
+    public String sendAndReceivePacket(String message) {
+        try {
+            sendPacket = new DatagramPacket(message.getBytes(), message.length(), InetAddress.getByName(DEFAULT), ELEVATOR_SCHEDULER_PORT);
+            socket.send(sendPacket);
+
+            byte receiveData[] = new byte[100];
+            receivePacket = new DatagramPacket(receiveData, receiveData.length);
+
+            socket.receive(receivePacket);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+        // Pull data from packet, convert to string, and trim whitespace
+        return new String(receivePacket.getData()).trim();
+    }
+
+    
+    /**
+     * Checks if the elevator has arrived at any of the floors of its events.
+     * Opens and closes the doors and removes the event from the queue is it is completed.
+     * 
+     * @param reachedFarthestFloor Flag for if the elevator has picked all its passengers up.
+     */
+    public void checkHasArrived(boolean reachedFarthestFloor) {
+        if(!reachedFarthestFloor) {
+            return;
+        }
+        
+        // Iterate through elevator's active events. Triggers doors and buttons if necessary
+        for(InputEvents e: events) {
+            if(e.getDestinationFloor() == this.currentFloor || e.getInitialFloor() == this.currentFloor) {
+                
+                elevatorDoor.openCloseDoor(id, e.getError());
+                elevButtons[this.currentFloor-1].pressButton();
+                arrivedAtFloor(this.currentFloor, this.direction);
+                
+                if(e.getInitialFloor() == this.currentFloor && e.getError().equals("Serious")) {
+                    faultFlag++;
+                }
+                
+                // Remove event from active events when it is completed
+                if(e.getDestinationFloor() == this.currentFloor) {	                
+                    events.remove(e);
+                }
+                break;
+            }
+        }
+        return;
+    }
+
+    @Override
+    public void run() {
+        boolean reachedFarthestFloor = false;
+        while (isRunning) {
+            //Poll for new events until one is received
+            while(events.isEmpty()) {
+                this.direction = MotorState.IDLE;
+                reachedFarthestFloor = false;
+                this.receiveExtraWork(this.direction, isRunning);
+            }
+
+            // Moving to the first event's initial floor
+            InputEvents nextEvent = getFurthestInitialFloorEvent(this.direction, this.currentFloor);
+
+            if(nextEvent == null) {
+                reachedFarthestFloor = true;
+            }
+            checkHasArrived(reachedFarthestFloor);
+
+            boolean goingUp;
+            // null means the farthest floor has been reached
+            if(nextEvent != null && !reachedFarthestFloor) {
+                // not null means that the elevator is heading to its event's initial floor
+                goingUp = (this.currentFloor < nextEvent.getInitialFloor());
+                currentFloor = motor.moveElevator(currentFloor, id, goingUp, faultFlag);
+
+                //Seek for farther events
+                getFartherJob(this.direction);
+            }
+
+            else if(nextEvent == null) {
+                reachedFarthestFloor = true;
+                goingUp = (this.direction == MotorState.UP ? true : false);
+                currentFloor = motor.moveElevator(currentFloor, id, goingUp, faultFlag);
+
+                // Seek for events on the way
+                receiveExtraWork(this.direction, isRunning);
+
+            }
+
+            else {
+                goingUp = (this.direction == MotorState.UP ? true : false);
+                currentFloor = motor.moveElevator(currentFloor, id, goingUp, faultFlag);
+
+                // Seek for events on the way
+                receiveExtraWork(this.direction, isRunning);
+            }
+        }
+    }
 }

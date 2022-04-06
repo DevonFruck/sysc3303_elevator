@@ -19,15 +19,13 @@ class ElevatorCarTest {
         ElevatorCar car = new ElevatorCar(1,2);
         
         //verify default status
-        assertEquals(true, car.isRunning);
+        assertEquals(true, car.getIsRunning());
         
         //verify default status
         
         assertEquals(MotorState.IDLE, car.getMotorState());
         
-        assertEquals(1, car.getElevatorID());
-        
-        assertEquals(true, car.isSeeking());  
+        assertEquals(1, car.getID()); 
     }
     
     
@@ -39,7 +37,7 @@ class ElevatorCarTest {
             EventsHandler event = new EventsHandler("14:05:15.32,3,Up,4,Serious");
             sched.acceptEvent(event);
             
-            ElevatorSchedulerThread thread = new ElevatorSchedulerThread(sched);
+            ElevatorSchedulerThread thread = new ElevatorSchedulerThread(sched, null);
             ElevatorCar car = new ElevatorCar(1,2);
             
             car.start();

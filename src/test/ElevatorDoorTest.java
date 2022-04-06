@@ -3,14 +3,17 @@ package test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
+
+import elevator.ElevatorCar;
 import elevator.ElevatorDoor;
 
 class ElevatorDoorTest {
 	
 	@Test
 	void testDoor() throws InterruptedException {
+	    ElevatorCar elevator = new ElevatorCar(1, 2);
 		//Create a Elevator Door
-		ElevatorDoor door = new ElevatorDoor();
+		ElevatorDoor door = new ElevatorDoor(elevator);
 
 		//verify default status
 		assertEquals(false, door.doorIsOpen());

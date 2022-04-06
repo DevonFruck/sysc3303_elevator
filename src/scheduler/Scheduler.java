@@ -49,32 +49,6 @@ public class Scheduler {
 		this.events.add(event);
 		notifyAll();
 	}
-	
-	
-	public static void main(String[] args) throws SocketException {
-		Scheduler scheduler = new Scheduler();
-		
-		GUI display = new GUI();
-		
-		FloorSchedulerThread floorSchedulerSubThread = new FloorSchedulerThread(scheduler, display);
-		floorSchedulerSubThread.start();
-		
-		ElevatorSchedulerThread elevatorSchedulerSubThread = new ElevatorSchedulerThread(scheduler, display);
-		elevatorSchedulerSubThread.start();
-
-		
-		Thread floorSystem = new Thread(new FloorSubsystem());
-		floorSystem.start();
-		
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-		@SuppressWarnings("unused")
-        ElevatorSubsystem elevSystem = new ElevatorSubsystem();
-	}
 
 	
 	//Pick up event on the way
@@ -155,4 +129,30 @@ public class Scheduler {
 	    }
         return "NULL";
 	}
+	
+	
+	public static void main(String[] args) throws SocketException {
+        Scheduler scheduler = new Scheduler();
+        
+        GUI display = new GUI();
+        
+        FloorSchedulerThread floorSchedulerSubThread = new FloorSchedulerThread(scheduler, display);
+        floorSchedulerSubThread.start();
+        
+        ElevatorSchedulerThread elevatorSchedulerSubThread = new ElevatorSchedulerThread(scheduler, display);
+        elevatorSchedulerSubThread.start();
+
+        
+        Thread floorSystem = new Thread(new FloorSubsystem());
+        floorSystem.start();
+        
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        
+        @SuppressWarnings("unused")
+        ElevatorSubsystem elevSystem = new ElevatorSubsystem();
+    }
 }

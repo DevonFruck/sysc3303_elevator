@@ -4,3 +4,9 @@
 /ElevatorLampTest.class
 /FloorButtonTest.class
 /FloorLampTest.class
+/ElevatorCarTest.class
+/ElevatorSchedulerThreadTest.class
+/FloorSchedulerTest.class
+/FloorTest.class
+/SchedulerTest.class
+/TxtFileReaderTest.class

@@ -7,28 +7,24 @@ import java.time.LocalTime;
  */
 public interface InputEvents {
 	//Get the event time
-	LocalTime getTime(); 
+	LocalTime getTime();
+	
 	//toString method, object --> string transformations 
 	String toString();
+	
 	//Method to get/request elevator 
 	int getElevator();
+	
 	//Method for determining which floor requested the elevator/pressed the button
 	int getInitialFloor();
+	
 	//Method to get the destination of the elevator
 	int getDestinationFloor();
-	//Boolean method that checks the elevator move direction true=up, false=down
-	boolean isGoingUp();
+	
+	
 	//Return elevator's state/moving direction
 	MotorState getMotorState();
+	
 	//Return error code
 	String getError();
-	//Boolean method to see if the error/fault is serious
-	boolean isSeriousError();
-	//Boolean method to see if the error/fault is trivial 
-	boolean isTrivialError();
-	//Is elevator taken
-	boolean isElevatorTaken();
-	//Take an event
-	void elevatorTakeEvent();
-	
 }

@@ -2,6 +2,8 @@ package floorSubsystem;
 
 import java.util.ArrayList;
 import types.InputEvents;
+import types.MotorState;
+
 import java.util.Random;
 /**
  * @author L4 Group 9
@@ -71,7 +73,7 @@ public class Floor extends Thread {
         // System.out.println("FLOOR #:"+floorNumber+ "--> Sending this message: "+a);
         subsys.sendToScheduler(a);
 
-        if (a.isGoingUp()) 
+        if (a.getMotorState() == MotorState.UP)
             floorButtons[0].pressButton(); 
         else 
             floorButtons[1].pressButton();

@@ -11,11 +11,8 @@ import java.time.LocalTime;
 public class EventsHandler implements InputEvents {
 	private LocalTime time; //Event time
 	private int initialFloor; //Initial floor, floor that requested the elevator
-	private boolean isUp; //Direction of elevator movement
 	private int destinationFloor;//Destination of the elevator/user
 	private String error; //error: if 0, no error.  If 1, trivial.   If 2, serious
-	
-	private boolean isElevatorTaken;//Is elevator taken
 	private MotorState motorState;
 	
 	/**
@@ -60,36 +57,14 @@ public class EventsHandler implements InputEvents {
 	public int getDestinationFloor() {
 		return this.destinationFloor;
 	}
-
-
-	//Check if the elevator is going up or down
-	@Override
-	public boolean isGoingUp() {
-		return this.isUp;
-	}
 	
 	
 	//Get error code
 	public String getError() {
 		return this.error;
 	}
-
-	/*
-	 * Check if the event is faulty or not
-	 * In this case, it is not. so we always return false
-	 * */
-	@Override
-	public boolean isSeriousError() {
-		return false;
-	}
-
-
-	//It isn't a fault so this method does not associate with PanssengerInput
-	@Override
-	public boolean isTrivialError() {
-		return false;
-	}
-
+	
+	
 	/*
 	 * Get the elevator
 	 * returns -1 because this is only needed when we have a faulty event/elevator
@@ -116,15 +91,6 @@ public class EventsHandler implements InputEvents {
 		return this.motorState;
 	}
 
-	@Override
-	public boolean isElevatorTaken() {
-		return this.isElevatorTaken;
-	}
-
-	@Override
-	public void elevatorTakeEvent() {
-		this.isElevatorTaken=true;
-	}
 	
 	@Override 
 	public boolean equals(Object obj) {
@@ -138,16 +104,9 @@ public class EventsHandler implements InputEvents {
 	    if(!(testEvents.getTime().equals(this.getTime()))) return false;
 	    if(!(testEvents.getInitialFloor() == this.getInitialFloor())) return false;
 	    if(!(testEvents.getDestinationFloor() == this.getDestinationFloor())) return false;
-	    if(!(testEvents.isGoingUp() == this.isGoingUp())) return false;
 	    if(!(testEvents.getError().equals(this.getError()))) return false;
-	    if(!(testEvents.isSeriousError() == this.isSeriousError())) return false;
-	    if(!(testEvents.isTrivialError() == this.isTrivialError())) return false;
 	    if(!(testEvents.getElevator() == this.getElevator())) return false;
-	    
 
-	    
-	       
-        
 	    return true;
 	}
 }

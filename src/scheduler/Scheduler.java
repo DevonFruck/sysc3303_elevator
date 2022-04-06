@@ -142,14 +142,13 @@ public class Scheduler {
 	        
 	        // Only accept the event if it's within reasonable distance from initial event
 	        boolean goingUp = (dir == MotorState.UP);
-	        if(floorDiff > 0 && floorDiff <=4 && goingUp == e.isGoingUp()) {
+	        if(floorDiff > 0 && floorDiff <=4 && goingUp == (e.getMotorState() == MotorState.UP)) {
 	            time += e.getTime().toString()+",";
                 direction = (e.getMotorState().name())+",";
                 floors+=e.getDestinationFloor()+",";
                 initialFloor += e.getInitialFloor()+",";
                 errorCode += e.getError();
                 
-                System.out.println("Elevator " +elevatorId+ "took event: " + e);
                 this.events.remove(e);
                 return time + initialFloor+ direction + floors  + errorCode;
 	        }

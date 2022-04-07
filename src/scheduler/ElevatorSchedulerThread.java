@@ -78,6 +78,14 @@ public class ElevatorSchedulerThread extends Thread {
     }
 
     
+    /**
+     * Handles the seekWork command from the elevator. Picks up events on the way
+     * to the elevators initial event's destination floor.
+     * 
+     * @param elevatorId The elevator's ID
+     * @param currentFloor The current floor of the elevator
+     * @param direction The direction of the elevator.
+     */
     private void handleSeekWork(int elevatorId, int currentFloor, String direction) {
         try {
             String response;
@@ -187,10 +195,7 @@ public class ElevatorSchedulerThread extends Thread {
         }
     }
     
-    
-    /**
-     * This method calls the appropriate scheduler message and returns whatever needed via UDP 
-     */
+    @Override
     public void run() {
         while(isRunning) {
             String parsedData[] = receiveRequest().split(",");

@@ -84,7 +84,14 @@ public class FloorSubsystem implements Runnable {
         floorList[floorNum-1].elevatorArrived(isGoingUp);
     }
 
-
+    
+    /**
+     * Parses data from a string and returns an array with the data
+     * 
+     * @param schedulerData The string, normally received from the scheduler
+     * 
+     * @return Parsed array of the input data.
+     */
     public String[] parseData(String schedulerData) {
         String[] tokens = schedulerData.split(",");
         return tokens;
@@ -101,6 +108,6 @@ public class FloorSubsystem implements Runnable {
     
     
     public static void main(String[] args) {
-        //FloorSubsystem subsys = new FloorSubsystem();
+        new FloorSubsystem();
     }
 }

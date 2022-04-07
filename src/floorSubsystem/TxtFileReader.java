@@ -27,16 +27,8 @@ public class TxtFileReader {
 			String readLine;
 			readLine = fileReader.readLine();
 			while (readLine != null) {
-//				if (readLine.split("\\|")[0].equalsIgnoreCase("User")) { //Checks if this is a user event
-//					//event with no errors/faults
-					EventsHandler event = new EventsHandler(readLine.split("\\|")[1]);
-					eventList.add(event); //adds current event to the array list
-//				} 
-//				else {
-//					//Handling faulty events
-//					ErrorHandler event = new ErrorHandler(readLine.split("\\|")[1]);
-//					eventList.add(event);
-//				}
+			    EventsHandler event = new EventsHandler(readLine.split("\\|")[1]);
+				eventList.add(event); //adds current event to the array list
 				readLine = fileReader.readLine();
 			}
 			fileReader.close();

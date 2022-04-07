@@ -45,7 +45,7 @@ class ElevatorCarTest {
             car.start();
             thread.start();
             
-            Thread.sleep(10000);
+            Thread.sleep(15000);
             
             assertFalse(car.getIsRunning());
             

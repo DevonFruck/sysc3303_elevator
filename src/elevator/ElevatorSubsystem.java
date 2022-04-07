@@ -8,6 +8,10 @@ import java.util.Random;
  */
 public class ElevatorSubsystem {
 	
+    /**
+     * Constructor for elevator subsystem. Creates the socket to receive data
+     * and initializes the elevators
+     */
 	public ElevatorSubsystem() {
 	    // Randomly generate where elevator will start
 	    Random rng = new Random();
@@ -24,8 +28,4 @@ public class ElevatorSubsystem {
             elevator.start();
         }
 	}
-    
-    public static void main(String[] args) {
-        
-    }
 }

@@ -32,12 +32,7 @@ public class ElevatorDoor {
 	}
 	
 	public void openCloseDoor(int id, String error) {
-//		int time = 500;
-//		if(error.equals("Trivial")) {
-//	    	time = 9000;
-//	    }
 	    this.doorStatus = true;
-	    System.out.println("Elevator("+ id+") door open");
 	    
 	    try {
             Thread.sleep(doorTime);

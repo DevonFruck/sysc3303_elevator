@@ -35,7 +35,7 @@ public class ElevatorCar extends Thread {
     
     int faultFlag = 0;
     int trivialFlag = 0;
-    
+    Long startTime, endTime;
 
     /**
      * Constructor for the ElevatorCar class.
@@ -245,9 +245,12 @@ public class ElevatorCar extends Thread {
      */
     public String sendAndReceivePacket(String message) {
         try {
+            Long startTime = System.nanoTime(); 
             sendPacket = new DatagramPacket(message.getBytes(), message.length(), InetAddress.getByName(DEFAULT), ELEVATOR_SCHEDULER_PORT);
             socket.send(sendPacket);
-
+            Long endTime = System.nanoTime();
+            System.out.println("Elevator -> time to send packet (ns): " + (endTime-startTime));
+            
             byte receiveData[] = new byte[100];
             receivePacket = new DatagramPacket(receiveData, receiveData.length);
 
@@ -276,16 +279,19 @@ public class ElevatorCar extends Thread {
         for(InputEvents e: events) {
             if(e.getDestinationFloor() == this.currentFloor || e.getInitialFloor() == this.currentFloor) {
                 
-                elevatorDoor.openCloseDoor(id, e.getError());
-                elevButtons[this.currentFloor-1].pressButton();
-                arrivedAtFloor(this.currentFloor, this.direction);
-                
                 if(e.getInitialFloor() == this.currentFloor && e.getError().equals("Serious")) {
                     faultFlag++;
                 }
                 
+                this.startTime = System.nanoTime(); 
+                elevatorDoor.openCloseDoor(id, e.getError());
+                elevButtons[this.currentFloor-1].pressButton();
+                arrivedAtFloor(this.currentFloor, this.direction);
+                this.endTime = System.nanoTime(); 
+                System.out.println("Elevator -> open/close doors and send fault signal (ns): " + (endTime-startTime));
+                
                 // Remove event from active events when it is completed
-                if(e.getDestinationFloor() == this.currentFloor) {	                
+                if(e.getDestinationFloor() == this.currentFloor) {
                     events.remove(e);
                 }
                 break;
@@ -296,6 +302,8 @@ public class ElevatorCar extends Thread {
 
     @Override
     public void run() {
+        Long startTime1 = (long) 0, endTime1 = (long) 0;
+        
         boolean reachedFarthestFloor = false;
         while (isRunning) {
             //Poll for new events until one is received
@@ -304,7 +312,9 @@ public class ElevatorCar extends Thread {
                 reachedFarthestFloor = false;
                 this.receiveExtraWork(this.direction, isRunning);
             }
-
+            
+            this.startTime = System.nanoTime();
+            
             // Moving to the first event's initial floor
             InputEvents nextEvent = getFurthestInitialFloorEvent(this.direction, this.currentFloor);
 
@@ -319,7 +329,8 @@ public class ElevatorCar extends Thread {
                 // not null means that the elevator is heading to its event's initial floor
                 goingUp = (this.currentFloor < nextEvent.getInitialFloor());
                 currentFloor = motor.moveElevator(currentFloor, id, goingUp, faultFlag);
-
+                endTime1 = System.nanoTime();
+                
                 //Seek for farther events
                 getFartherJob(this.direction);
             }
@@ -328,7 +339,8 @@ public class ElevatorCar extends Thread {
                 reachedFarthestFloor = true;
                 goingUp = (this.direction == MotorState.UP ? true : false);
                 currentFloor = motor.moveElevator(currentFloor, id, goingUp, faultFlag);
-
+                endTime1 = System.nanoTime();
+                
                 // Seek for events on the way
                 receiveExtraWork(this.direction, isRunning);
 
@@ -337,10 +349,12 @@ public class ElevatorCar extends Thread {
             else {
                 goingUp = (this.direction == MotorState.UP ? true : false);
                 currentFloor = motor.moveElevator(currentFloor, id, goingUp, faultFlag);
-
+                endTime1 = System.nanoTime();
+                
                 // Seek for events on the way
                 receiveExtraWork(this.direction, isRunning);
             }
+            System.out.println("Elevator -> move up or down floor: " + (endTime1-startTime1));
         }
     }
 }

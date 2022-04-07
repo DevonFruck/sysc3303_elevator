@@ -12,7 +12,7 @@ public class EventsHandler implements InputEvents {
 	private LocalTime time; //Event time
 	private int initialFloor; //Initial floor, floor that requested the elevator
 	private int destinationFloor;//Destination of the elevator/user
-	private String error; //error: if 0, no error.  If 1, trivial.   If 2, serious
+	private String error; //error type
 	private MotorState motorState;
 	
 	/**
@@ -79,11 +79,9 @@ public class EventsHandler implements InputEvents {
 	public String toString() {
 		if(error.equals("NA")) {
 			return "Time: " + time + "\nFloor: " + initialFloor + "\nFloor-button: " + motorState.name() + "\nDestination: " + destinationFloor + "\n";
-//			return "Time: " + time + "\nFloor: " + initialFloor + "\nFloor-button: " + (isUp ? "Up" : "Down") + "\nDestination: " + destinationFloor + "\n";
 		}else {
 			return "Time: " + time + "\nFloor: " + initialFloor + "\nFloor-button: " + motorState.name() + "\nDestination: " + destinationFloor + "\nError: " + error + "\n";
 		}
-		
 	}
 
 	@Override

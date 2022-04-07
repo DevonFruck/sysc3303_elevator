@@ -21,7 +21,6 @@ public interface InputEvents {
 	//Method to get the destination of the elevator
 	int getDestinationFloor();
 	
-	
 	//Return elevator's state/moving direction
 	MotorState getMotorState();
 	

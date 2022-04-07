@@ -97,8 +97,16 @@ public class Scheduler {
 	}
 	
 	
-	//Pick up event slightly past the floor you're moving to. Usually invoked when
-	//Elevator is moving to the initial floor of its only active event.
+	/**
+	 * pickUpFartherEvent is invoked when an elevator is moving to its first event's initial floor.
+	 * This provides events that the elevator can complete on the way or at least nearby its initial event.
+	 * 
+	 * @param elevatorId The elevator's ID.
+	 * @param currentFloor The current floor of the elevator.
+	 * @param dir The direction of the elevator.
+	 * 
+	 * @return The data of the event, as a string.
+	 */
 	public synchronized String pickUpFartherEvent(int elevatorId, int currentFloor, MotorState dir) {
 	    String time="";
         String initialFloor="";

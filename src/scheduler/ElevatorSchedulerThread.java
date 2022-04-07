@@ -77,45 +77,13 @@ public class ElevatorSchedulerThread extends Thread {
         }
     }
 
-    /**
-     * This method calls the appropriate scheduler message and returns whatever needed via UDP 
-     */
-    public void run() {
-        while(isRunning) {
-            String parsedData[] = receiveRequest().split(",");
-            
-            String command = parsedData[0];
-            int elevatorId = Integer.parseInt(parsedData[1]);
-            
-            //Handle if fault before we move on
-            if(command.equals("fault")) {
-                handleFault(elevatorId, true);
-            } else if(command.equals("trivial")) {
-                handleFault(elevatorId, false);
-            } else {
-                int floorNum = Integer.parseInt(parsedData[2]);
-                String direction = parsedData[3];
-
-                evaluateRequest(command, elevatorId, floorNum, direction);
-            }
-        }
-        System.out.println("scheduler thread shutting down");
-        socket.close();
-    }
     
     private void handleSeekWork(int elevatorId, int currentFloor, String direction) {
         try {
             String response;
 
             //Convert the direction string into the enum
-            MotorState state = null;
-            if(direction.equals("IDLE")) {
-                state = MotorState.IDLE;
-            }else if (direction.equals("UP")) {
-                state =  MotorState.UP;
-            }else if (direction.equals("DOWN")) {
-                state = MotorState.DOWN;
-            }
+            MotorState state = stringToMotorState(direction);
             
             if(display != null)
                 display.setFloorStatus(null, elevatorId, currentFloor);
@@ -146,6 +114,13 @@ public class ElevatorSchedulerThread extends Thread {
     }
     
     
+    /**
+     * Seeks more work for the elevator while it is traveling to its first event's initial floor.
+     * 
+     * @param elevatorId The ID of the elevator
+     * @param currentFloor The current floor the elevator is at.
+     * @param direction The direction the elevator is traveling.
+     */
     private void handleSeekFartherWork(int elevatorId, int currentFloor, String direction) {
         MotorState state = stringToMotorState(direction);
         
@@ -190,14 +165,46 @@ public class ElevatorSchedulerThread extends Thread {
         }
     }
     
+    /**
+     * Handles the types of faults for the elevators.
+     * 
+     * @param elevatorId The elevator ID.
+     * @param serious True when error is serious, false when trivial.
+     */
     private void handleFault(int elevatorId, boolean serious) {
         if(serious) {
-            display.closeElevator(elevatorId);
             display.writeToLog("Elevator "+elevatorId+ " experienced a fault, shutting down.");
+            display.closeElevator(elevatorId);
         } else {
             display.writeToLog("Elevator " +elevatorId+ " is experiencing issues operating its doors.");
             display.jamElevator(elevatorId);
         }
     }
+    
+    
+    /**
+     * This method calls the appropriate scheduler message and returns whatever needed via UDP 
+     */
+    public void run() {
+        while(isRunning) {
+            String parsedData[] = receiveRequest().split(",");
+            
+            String command = parsedData[0];
+            int elevatorId = Integer.parseInt(parsedData[1]);
+            
+            //Handle if fault before we move on
+            if(command.equals("fault")) {
+                handleFault(elevatorId, true);
+            } else if(command.equals("trivial")) {
+                handleFault(elevatorId, false);
+            } else {
+                int floorNum = Integer.parseInt(parsedData[2]);
+                String direction = parsedData[3];
 
+                evaluateRequest(command, elevatorId, floorNum, direction);
+            }
+        }
+        System.out.println("scheduler thread shutting down");
+        socket.close();
+    }
 }

@@ -6,8 +6,9 @@ import types.MotorState;
 
 import java.util.Random;
 /**
+ * Floor class which requests elevators by sending UDP packets to the scheduler.
+ * 
  * @author L4 Group 9
- *
  */
 public class Floor extends Thread {
     int floorNumber;
@@ -15,6 +16,7 @@ public class Floor extends Thread {
     ArrayList<InputEvents> events;
     FloorButton floorButtons[];
     Random rng;
+    
     /**
      * Constructor for the Floor class. Initialized the floor number, a reference to
      * the scheduler, it's floor buttons, and an events queue.
@@ -116,6 +118,9 @@ public class Floor extends Thread {
         }
     }
     
+    /**
+     * Floor will wait for requests while it doesn't have any to send to the scheduler.
+     */
     public void floorAwaitRequest() {
         try {
             synchronized(events) {

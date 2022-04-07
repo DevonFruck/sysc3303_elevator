@@ -63,12 +63,10 @@ public class ElevatorMotor {
 	    
 	    int newCurrFloor = currFloor;
 	    if(isUp && currFloor < NUM_OF_FLOORS) {
-	        newCurrFloor = currFloor+1;
-	        //System.out.println("Moving elevator(" +id+ ") from " +currFloor+ " to " +newCurrFloor);
+	        newCurrFloor++;
 	    } else {
 	    	if(currFloor > 1) {
-	        newCurrFloor = currFloor-1;
-	        //System.out.println("Moving elevator(" +id+ ") from " +currFloor+ " to " +newCurrFloor);
+	    	    newCurrFloor--;
 	    	}
 	    }
 	    

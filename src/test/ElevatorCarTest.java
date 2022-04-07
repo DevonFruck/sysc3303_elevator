@@ -1,9 +1,9 @@
 package test;
 
+import static config.Config.DEFAULT;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
-
 import org.junit.jupiter.api.Test;
 import elevator.*;
 import scheduler.ElevatorSchedulerThread;
@@ -16,7 +16,7 @@ class ElevatorCarTest {
     @Test
     void testCar() throws InterruptedException, IOException {
         //Create a Elevator Car
-        ElevatorCar car = new ElevatorCar(1,2);
+        ElevatorCar car = new ElevatorCar(1,2, DEFAULT, 990);
         
         //verify default status
         assertEquals(true, car.getIsRunning());
@@ -25,7 +25,9 @@ class ElevatorCarTest {
         
         assertEquals(MotorState.IDLE, car.getMotorState());
         
-        assertEquals(1, car.getID()); 
+        assertEquals(1, car.getID());
+        
+        car.shutDown();
     }
     
     
@@ -34,11 +36,11 @@ class ElevatorCarTest {
         try {
             Scheduler sched = new Scheduler();
             
-            EventsHandler event = new EventsHandler("14:05:15.32,3,Up,4,Serious");
+            EventsHandler event = new EventsHandler("14:05:15.32,2,Up,9,Serious");
             sched.acceptEvent(event);
             
-            ElevatorSchedulerThread thread = new ElevatorSchedulerThread(sched, null);
-            ElevatorCar car = new ElevatorCar(1,2);
+            ElevatorSchedulerThread thread = new ElevatorSchedulerThread(sched, null, DEFAULT, 9998, 9997);
+            ElevatorCar car = new ElevatorCar(1,1, DEFAULT, 9998);
             
             car.start();
             thread.start();
@@ -54,5 +56,4 @@ class ElevatorCarTest {
             e.printStackTrace();
         }
     }
-
 }

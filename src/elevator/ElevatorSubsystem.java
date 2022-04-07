@@ -17,7 +17,7 @@ public class ElevatorSubsystem {
 	    
 	    for(int i=1; i<=NUM_OF_ELEVATORS; i++) {
 	        startingFloor = rng.nextInt(NUM_OF_FLOORS)+1;
-	        elevators[i-1] = new ElevatorCar(i, startingFloor);
+	        elevators[i-1] = new ElevatorCar(i, startingFloor, DEFAULT, ELEVATOR_SCHEDULER_PORT);
 	    }
 	    
 	    for(ElevatorCar elevator: elevators) {

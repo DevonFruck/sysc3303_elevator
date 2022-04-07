@@ -6,12 +6,13 @@ import org.junit.jupiter.api.Test;
 
 import elevator.ElevatorCar;
 import elevator.ElevatorDoor;
+import static config.Config.DEFAULT;
 
 class ElevatorDoorTest {
 	
 	@Test
 	void testDoor() throws InterruptedException {
-	    ElevatorCar elevator = new ElevatorCar(1, 2);
+	    ElevatorCar elevator = new ElevatorCar(1, 2, DEFAULT, 867);
 		//Create a Elevator Door
 		ElevatorDoor door = new ElevatorDoor(elevator);
 

@@ -7,6 +7,7 @@ import floorSubsystem.FloorSubsystem;
 import types.MotorState;
 import types.InputEvents;
 import display.GUI;
+import static config.Config.*;
 /**
  * Scheduler Class
  * This class is responsible for handling communication between floors and elevators
@@ -144,10 +145,10 @@ public class Scheduler {
         
         GUI display = new GUI();
         
-        FloorSchedulerThread floorSchedulerSubThread = new FloorSchedulerThread(scheduler, display);
+        FloorSchedulerThread floorSchedulerSubThread = new FloorSchedulerThread(scheduler, display, FLOOR_SCHEDULER_PORT);
         floorSchedulerSubThread.start();
         
-        ElevatorSchedulerThread elevatorSchedulerSubThread = new ElevatorSchedulerThread(scheduler, display);
+        ElevatorSchedulerThread elevatorSchedulerSubThread = new ElevatorSchedulerThread(scheduler, display, DEFAULT, ELEVATOR_SCHEDULER_PORT, FLOOR_SUBSYS_PORT);
         elevatorSchedulerSubThread.start();
 
         

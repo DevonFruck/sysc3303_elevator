@@ -33,6 +33,7 @@ public class ElevatorCar extends Thread {
     DatagramSocket socket;
     InetAddress schedulerIp;
     
+    int elevSchedulerPort;
     int faultFlag = 0;
     int trivialFlag = 0;
     Long startTime, endTime;
@@ -43,10 +44,11 @@ public class ElevatorCar extends Thread {
      * 
      * @param scheduler The elevator scheduler the class interacts with.
      */
-    public ElevatorCar(int id, int initialFloor) {
+    public ElevatorCar(int id, int initialFloor, String schedulerIp, int elevSchedulerPort) {
         isRunning = true;
         this.events = new LinkedList<>();
         this.id = id;
+        this.elevSchedulerPort = elevSchedulerPort; 
         currentFloor = initialFloor;
         motor.setStatus(MotorState.IDLE);
 
@@ -55,7 +57,7 @@ public class ElevatorCar extends Thread {
         }
         
         try {
-            schedulerIp = InetAddress.getByName(DEFAULT);
+            this.schedulerIp = InetAddress.getByName(schedulerIp);
             socket = new DatagramSocket();
         } catch (UnknownHostException | SocketException e) {
             e.printStackTrace();
@@ -129,7 +131,7 @@ public class ElevatorCar extends Thread {
     public void arrivedAtFloor(int floorNum, MotorState dir) {
         String message = "arrived,"+ id  +","+ currentFloor +","+ dir.name();
 
-        DatagramPacket sendPacket = new DatagramPacket(message.getBytes(), message.length(), schedulerIp, ELEVATOR_SCHEDULER_PORT);
+        DatagramPacket sendPacket = new DatagramPacket(message.getBytes(), message.length(), schedulerIp, elevSchedulerPort);
         try {
             socket.send(sendPacket);
         } catch (IOException e) {
@@ -150,7 +152,7 @@ public class ElevatorCar extends Thread {
         }
 
         try {
-            sendPacket = new DatagramPacket(message.getBytes(), message.length(), InetAddress.getByName(DEFAULT), ELEVATOR_SCHEDULER_PORT);
+            sendPacket = new DatagramPacket(message.getBytes(), message.length(), InetAddress.getByName(DEFAULT), elevSchedulerPort);
             socket.send(sendPacket);
         } catch (IOException e) {
             e.printStackTrace();
@@ -246,7 +248,7 @@ public class ElevatorCar extends Thread {
     public String sendAndReceivePacket(String message) {
         try {
             Long startTime = System.nanoTime(); 
-            sendPacket = new DatagramPacket(message.getBytes(), message.length(), InetAddress.getByName(DEFAULT), ELEVATOR_SCHEDULER_PORT);
+            sendPacket = new DatagramPacket(message.getBytes(), message.length(), InetAddress.getByName(DEFAULT), elevSchedulerPort);
             socket.send(sendPacket);
             Long endTime = System.nanoTime();
             System.out.println("Elevator -> time to send packet (ns): " + (endTime-startTime));

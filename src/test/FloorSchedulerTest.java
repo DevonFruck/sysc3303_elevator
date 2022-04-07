@@ -12,11 +12,10 @@ import scheduler.FloorSchedulerThread;
 import scheduler.Scheduler;
 import types.EventsHandler;
 import types.InputEvents;
-import static config.Config.*;
 
 public class FloorSchedulerTest {
     static Scheduler scheduler = new Scheduler();
-    static FloorSchedulerThread thread = new FloorSchedulerThread(scheduler, null);
+    static FloorSchedulerThread thread = new FloorSchedulerThread(scheduler, null, 999);
     
     
     @Test
@@ -25,14 +24,16 @@ public class FloorSchedulerTest {
         InputEvents receivedData;
         
         data = "16:48:02.00,2,Up,5".getBytes();        
-        mockSender(FLOOR_SCHEDULER_PORT, data, "127.0.0.1");
+        mockSender(999, data, "127.0.0.1");
+        System.out.println("sent packet");
+        
         receivedData = thread.receiveData();
         EventsHandler testEvents = new EventsHandler("16:48:02.00,2,Up,5");
         assertTrue(testEvents.equals(receivedData));
 
         
         data = "13:05:27.48,1,Up,9,Trivial".getBytes();
-        mockSender(FLOOR_SCHEDULER_PORT, data, "127.0.0.1");
+        mockSender(999, data, "127.0.0.1");
         receivedData = thread.receiveData();
         EventsHandler testEvents2 = new EventsHandler("13:05:27.48,1,Up,9,Trivial");
         assertTrue(testEvents2.equals(receivedData));

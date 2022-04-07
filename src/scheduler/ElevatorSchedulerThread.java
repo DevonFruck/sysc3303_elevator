@@ -10,8 +10,6 @@ import java.net.UnknownHostException;
 import display.GUI;
 import types.MotorState;
 
-import static config.Config.*;
-
 /**
  * This thread is created for elevator request
  */
@@ -22,6 +20,7 @@ public class ElevatorSchedulerThread extends Thread {
     private DatagramPacket receivePacket, sendPacket;
     private DatagramSocket socket;
     InetAddress floorSubsysIp;
+    private int floorSubsysPort;
     
     boolean isRunning = true;
     
@@ -29,13 +28,14 @@ public class ElevatorSchedulerThread extends Thread {
      * Creates a thread for the elevator operation
      * @param scheduler The scheduler to make the request to
      */
-    public ElevatorSchedulerThread(Scheduler scheduler, GUI display) {
+    public ElevatorSchedulerThread(Scheduler scheduler, GUI display, String floorSubsysIp, int receivePort, int floorSubsysPort) {
         this.display = display;
         this.scheduler = scheduler;
-
+        this.floorSubsysPort = floorSubsysPort;
+        
         try {
-            this.socket= new DatagramSocket(ELEVATOR_SCHEDULER_PORT);
-            this.floorSubsysIp = InetAddress.getByName(DEFAULT);
+            this.socket = new DatagramSocket(receivePort);
+            this.floorSubsysIp = InetAddress.getByName(floorSubsysIp);
         } catch (SocketException | UnknownHostException e) {
             e.printStackTrace();
         }
@@ -151,15 +151,15 @@ public class ElevatorSchedulerThread extends Thread {
         byte[] message = new String(currentFloor+ "," +direction).getBytes();
         
         try {
-            DatagramPacket sendPacket = new DatagramPacket(message, message.length, floorSubsysIp, FLOOR_SUBSYS_PORT);
+            DatagramPacket sendPacket = new DatagramPacket(message, message.length, floorSubsysIp, this.floorSubsysPort);
             DatagramSocket socket = new DatagramSocket();
             socket.send(sendPacket);
             socket.close();
             
-            display.writeToLog("The " +direction+ " button light turned off for floor " +currentFloor);
-            
-            if(display != null)
+            if(display != null) {
+                display.writeToLog("The " +direction+ " button light turned off for floor " +currentFloor);
                 display.setFloorStatus("arrived", elevatorId, currentFloor);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -173,11 +173,17 @@ public class ElevatorSchedulerThread extends Thread {
      */
     private void handleFault(int elevatorId, boolean serious) {
         if(serious) {
-            display.writeToLog("Elevator "+elevatorId+ " experienced a fault, shutting down.");
-            display.closeElevator(elevatorId);
+            if(display != null) {
+                display.writeToLog("Elevator "+elevatorId+ " experienced a fault, shutting down.");
+                display.closeElevator(elevatorId);
+            }
+                
         } else {
-            display.writeToLog("Elevator " +elevatorId+ " is experiencing issues operating its doors.");
-            display.jamElevator(elevatorId);
+            if(display != null) {
+                display.writeToLog("Elevator " +elevatorId+ " is experiencing issues operating its doors.");
+                display.jamElevator(elevatorId);
+            }
+                
         }
     }
     

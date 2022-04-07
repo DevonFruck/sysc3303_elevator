@@ -12,12 +12,12 @@ import java.net.InetAddress;
 
 import scheduler.ElevatorSchedulerThread;
 import scheduler.Scheduler;
-import static config.Config.*;
+import static config.Config.DEFAULT;
 
 class ElevatorSchedulerThreadTest {
     
     static Scheduler scheduler = new Scheduler();
-    static ElevatorSchedulerThread thread = new ElevatorSchedulerThread(scheduler, null);
+    static ElevatorSchedulerThread thread = new ElevatorSchedulerThread(scheduler, null, DEFAULT, 888, 889);
     
     /**
      * Tests the ability for the scheduler to receive data from the elevators.
@@ -28,12 +28,12 @@ class ElevatorSchedulerThreadTest {
         String receivedData;
         
         data = "seekWork,4,UP".getBytes();
-        mockSender(ELEVATOR_SCHEDULER_PORT, data, "127.0.0.1");
+        mockSender(888, data, "127.0.0.1");
         receivedData = thread.receiveRequest();
         assertEquals("seekWork,4,UP", receivedData);
         
         data = "arrived,6,DOWN  ".getBytes();
-        mockSender(ELEVATOR_SCHEDULER_PORT, data, "127.0.0.1");
+        mockSender(888, data, "127.0.0.1");
         receivedData = thread.receiveRequest();
         assertEquals("arrived,6,DOWN", receivedData);
         

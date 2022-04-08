@@ -51,18 +51,6 @@ public class ElevatorDoor {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-	    
-//	    try {
-//            Thread.sleep(time);
-//        } catch (InterruptedException e) {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
-//	    if(time!=500) {
-//	    	System.out.println("Elevator("+id+") door is working again after apprx "+(time/1000)+" seconds, now closing");
-//	    }else {
-//	    	System.out.println("Elevator("+ id+") door close");
-//	    }
 	}
 	
 	/**

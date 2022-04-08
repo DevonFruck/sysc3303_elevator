@@ -18,7 +18,7 @@ class TxtFileReaderTest {
         ArrayList<InputEvents> arr = new ArrayList<InputEvents>();
         arr.addAll(TxtFileReader.getEvents(System.getProperty("user.dir") + "/src/floorSubsystem/input.txt"));
         
-        String input = "User|12:25:15.12,6,Up,9, ";
+        String input = "User|12:25:15.12,1,Up,15, ";
         EventsHandler event = new EventsHandler(input.split("\\|")[1]);
               
         assertTrue(arr.get(0).equals(event));

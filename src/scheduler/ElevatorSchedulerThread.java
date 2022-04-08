@@ -25,8 +25,13 @@ public class ElevatorSchedulerThread extends Thread {
     boolean isRunning = true;
     
     /**
-     * Creates a thread for the elevator operation
-     * @param scheduler The scheduler to make the request to
+     * Creates a thread for the elevators to communicate to regarding elevator requests.
+     * 
+     * @param scheduler The scheduler to make the request to.
+     * @param display The GUI of the application.
+     * @param floorSubsysIp The IP of the floor subsystem.
+     * @param receivePort The port at which this class receives requests.
+     * @param floorSubsysPort The port at which the floor subsystem receives requests.
      */
     public ElevatorSchedulerThread(Scheduler scheduler, GUI display, String floorSubsysIp, int receivePort, int floorSubsysPort) {
         this.display = display;
@@ -107,6 +112,12 @@ public class ElevatorSchedulerThread extends Thread {
         }
     }
     
+    /**
+     * Parses a string into the enum MotorState
+     * @param direction Direction of elevator as a string.
+     * 
+     * @return Direction equivalent as an enum.
+     */
     private MotorState stringToMotorState(String direction) {
         MotorState state = null;
         

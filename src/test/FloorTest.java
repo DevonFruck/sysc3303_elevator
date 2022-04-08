@@ -17,11 +17,11 @@ class FloorTest {
     
     @Test
     void FloorsTest() throws InterruptedException {
-        InputEvents eventTest = new EventsHandler("15:45:54.11,3,Up,6, ");
+        InputEvents eventTest = new EventsHandler("12:25:15.12,1,Up,15, ");
                 
-        Floor floor = new Floor(subsystem, 3);
+        Floor floor = new Floor(subsystem, 1);
         
-        assertEquals(3, floor.getFloorNumber());
+        assertEquals(1, floor.getFloorNumber());
         
         floor.readEvents();
         

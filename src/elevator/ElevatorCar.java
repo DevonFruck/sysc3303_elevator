@@ -42,7 +42,10 @@ public class ElevatorCar extends Thread {
      * Constructor for the ElevatorCar class.
      * Defines default values for the elevator.
      * 
-     * @param scheduler The elevator scheduler the class interacts with.
+     * @param id The elevator ID.
+     * @param initialFloor The starting floor of the elevator
+     * @param shedulerIp The IP of the scheduler.
+     * @param elevSchedulerPort The port to talk to the scheduler.
      */
     public ElevatorCar(int id, int initialFloor, String schedulerIp, int elevSchedulerPort) {
         isRunning = true;
@@ -64,18 +67,30 @@ public class ElevatorCar extends Thread {
         }
     }
     
+    /**
+     * Decrements the fault flag.
+     */
     public void decrementFaultFlag() {
         faultFlag --;
     }
     
+    /**
+     * Increments the fault flag.
+     */
     public void incrementFaultFlag() {
         faultFlag ++;
     }
     
+    /**
+     * Decrements the trivial flag.
+     */
     public void decrementTrivialFlag() {
         trivialFlag --;
     }
     
+    /**
+     * Increments the trivial flag.
+     */
     public void incrementTrivialFlag() {
         trivialFlag ++;
     }
@@ -190,7 +205,13 @@ public class ElevatorCar extends Thread {
         }
         return event;
     }
-
+    
+    /**
+     * Looks to receive work on the way to its event's destination.
+     * 
+     * @param dir Direction of elevator.
+     * @param seek Whether the elevtor is still running and should seek.
+     */
     public void receiveExtraWork(MotorState dir, boolean seek) {
         if(seek) {
             String message = "seekWork," + id  +","+ currentFloor + "," + dir.name();

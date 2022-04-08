@@ -19,7 +19,10 @@ public class FloorSchedulerThread extends Thread {
 	private GUI display;
 	/**
 	 * Creates a new FloorSubThread for the new event
-	 * @param scheduler The scheduler in which the new event is added to
+	 * 
+	 * @param scheduler The scheduler in which the new event is added to.
+	 * @param display The GUI for the application.
+	 * @param receivePort The port at which this class receives requests.
 	 */
 	public FloorSchedulerThread(Scheduler scheduler, GUI display, int receivePort) {
 		this.scheduler = scheduler;

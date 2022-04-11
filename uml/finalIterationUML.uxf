@@ -1,0 +1,684 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>6</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>348</x>
+      <y>144</y>
+      <w>360</w>
+      <h>228</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Thread&gt;&gt;
+ElevatorSchedulerThread
+--
+- display: GUI
+- scheduler: Scheduler
+- receivePacket: DatagramPacket
+- sendPacket: DatagramPacket
+- socket: DatagramSocket
+- floorSusysIp: InetAddress
+- floorSubsysPort: int
+- isRunning: boolean
+--
+- ElevatorSchedulerThread(scheduler,display,floorSubsysIp,
+receivePort,floorSubsysPort)
+
+- receieveRequest(): String
+- evaluateRequest(command, elevatorId)
+- handleSeekWork(elevatorId,currentFloor,direction)
+- stringToMotorState(direction): MotorState
+- handleSeekFatherWork(elevatorId,currentFloor,direction)
+- handleArrived(elevatorId,currentFloor,direction)
+- handleFault(elevatorId, serious)
+- shutDown()
++ run()
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1074</x>
+      <y>180</y>
+      <w>318</w>
+      <h>114</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Thread&gt;&gt;
+FloorSchedulerThread
+--
+scheduler: Scheduler
+receiveSocket: DatagramSocket
+display: GUI
+
+--
++ FloorSchedulerThread(scheduler, display, receivePort)
++ receiveData()
++ run()
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>768</x>
+      <y>306</y>
+      <w>288</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Synchronized&gt;&gt;
+Scheduler
+--
+-id: Long
+-ClassAttribute: Long
+
+--
++ Scheduler()
++ getEventsQueue(): LinkedList&lt;InputEvents&gt;
++ removeQueueElement(): InputEvents
++ acceptEvent(event)
++ shedulerEvents(currentFloor, dir)
++ pickUpFartherEvent(elevatorId,currentFloor,dir)
+
+
+
+--
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>834</x>
+      <y>48</y>
+      <w>126</w>
+      <h>96</h>
+    </coordinates>
+    <panel_attributes>InputEvents
+--
++ getTime()
++ toString()
++ getElevator()
++ getInitialFloor()
++ getDestinationFloor()
++ getMotorState()
++ getError()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>834</x>
+      <y>192</y>
+      <w>132</w>
+      <h>42</h>
+    </coordinates>
+    <panel_attributes>EventsHandler
+--
++EventsHandler(input)
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>366</x>
+      <y>438</y>
+      <w>360</w>
+      <h>318</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Thread&gt;&gt;
+ElevatorCar
+--
+- id: int
+- isRunning: boolean
+- currentFloor: int
+- events: LinkedList&lt;InputEvents&gt;
+- elevatorDoor: ElevatorDoor
+- elevButtons: ElevatorButton[]
+- motor: ElevatorMotor
+- direction: MotorState
+- receivePacket: DatagramPacket
+- sendPacket: DatagramPacket
+- socket: DatagramSocket
+- schedulerIp: InetAddress
+- elevSchedulerPort: int
+- faultFlag: int
+- trivialFlag: int
+--
++ ElevatorCar(id,initialFloor,scheduler,elevSchedulerPort)
++decrementFaultFlag()
++incrementFaultFlag()
++incrementTrivialFlag()
++decrementTrivialFlag()
++getIsRunning(): boolean
++shutDown()
++getMotorState(): MotorState
++getID(): int
++getCurrentFloor(): int
++arrivedAtFloor(floorNum, dir)
++sendFault(serious)
++getFurthestInitialFloorEvent(dir,floor)
++receiveExtraWork(dir, seek)
++getFartherJob(dir)
+sendAndReceivePacket(message): String
++checkHasArrived(reachedFarthestFloor)
++run()
+
+
+--
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1218</x>
+      <y>354</y>
+      <w>168</w>
+      <h>114</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Thread&gt;&gt;
+FloorSubsystem
+--
+-floorList: Floor[]
+-ip: InetAddress
+--
++FloorSubsystem()
++sendToScheduler()
++getFromScheduler()
++parseData(): String[]
++run()
+
+--
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1128</x>
+      <y>528</y>
+      <w>252</w>
+      <h>156</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Thread&gt;&gt;
+Floor
+--
+-floorNumber: int
+-subsys: FloorSubsystem
+-events: ArrayList&lt;InputEvents&gt;
+-floorButtons: FloorButton[]
+-rng: Random
+--
++Floor(subsys,floorNumber)
++getFloorNumber()
++readEvents()
++requestElevator()
++getEventList(): ArrayList&lt;InputEvents&gt;
++elevatorArrived(goingUp)
++floorAwaitRequest();
++run()
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>360</x>
+      <y>768</y>
+      <w>132</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>ElevatorSubsystem
+--
+
+--
++ ElevatorSubsystem()</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>996</x>
+      <y>234</y>
+      <w>90</w>
+      <h>84</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=1
+m2=1</panel_attributes>
+    <additional_attributes>10.0;120.0;10.0;10.0;130.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>786</x>
+      <y>714</y>
+      <w>168</w>
+      <h>114</h>
+    </coordinates>
+    <panel_attributes>ElevatorDoor
+--
+-doorStatus: boolean
+-elevator: ElevatorCar
+-doorTime: int
+-trivialTime: int
+--
++ElevatorDoor(elevator)
++openDoor()
++openCloseDoor(id, error)
++closeDoor()
++doorIsOpen(): boolean
+
+--
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>786</x>
+      <y>588</y>
+      <w>288</w>
+      <h>114</h>
+    </coordinates>
+    <panel_attributes>ElevatorMotor
+--
+-status: MotorState
+-elevator: ElevatorCar
+-rng: Random
+--
++ElevatorMotor(elevator)
++getStatus()
++setStatus()
++moveElevator(currFloor,id,isUp,faultFlag):int
+
+
+--
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>486</x>
+      <y>750</y>
+      <w>102</w>
+      <h>66</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-
+m1=1..n
+m2=1</panel_attributes>
+    <additional_attributes>110.0;10.0;110.0;80.0;10.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>138</x>
+      <y>516</y>
+      <w>168</w>
+      <h>114</h>
+    </coordinates>
+    <panel_attributes>ElevatorButton
+--
+-floorNum: int
+-elevatorLamp: ElevatorLamp
+--
++ElevatorDoor(floorNum)
++pressButton()
++buttonStatus()
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>138</x>
+      <y>690</y>
+      <w>168</w>
+      <h>114</h>
+    </coordinates>
+    <panel_attributes>ElevatorLamp
+--
+-floorNum: int
+--
++ElevatorLamp(floorNum)
++getFloorNum()
++turnOn()
++turnOff()
++isOn(): boolean
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>702</x>
+      <y>258</y>
+      <w>120</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+m1=1
+m2=1</panel_attributes>
+    <additional_attributes>10.0;10.0;170.0;10.0;170.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>522</x>
+      <y>366</y>
+      <w>42</w>
+      <h>84</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=1..n</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;120.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1224</x>
+      <y>114</y>
+      <w>18</w>
+      <h>78</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;110.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>888</x>
+      <y>228</y>
+      <w>24</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=1</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;130.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>858</x>
+      <y>492</y>
+      <w>102</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;enumeration&gt;&gt;
+MotorState
+--
+IDLE
+UP
+DOWN</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>720</x>
+      <y>618</y>
+      <w>78</w>
+      <h>42</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=1</panel_attributes>
+    <additional_attributes>10.0;10.0;110.0;50.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>720</x>
+      <y>720</y>
+      <w>78</w>
+      <h>42</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=1</panel_attributes>
+    <additional_attributes>10.0;10.0;110.0;50.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>300</x>
+      <y>540</y>
+      <w>78</w>
+      <h>42</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=1</panel_attributes>
+    <additional_attributes>10.0;50.0;110.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>210</x>
+      <y>624</y>
+      <w>24</w>
+      <h>78</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=1</panel_attributes>
+    <additional_attributes>10.0;110.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1290</x>
+      <y>288</y>
+      <w>24</w>
+      <h>78</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=1</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;110.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1290</x>
+      <y>462</y>
+      <w>42</w>
+      <h>78</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=1..n</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;110.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1158</x>
+      <y>708</y>
+      <w>168</w>
+      <h>114</h>
+    </coordinates>
+    <panel_attributes>FloorButton
+--
+button: boolean
+floorButtonLamp: FloorLamp
+--
++FloorButton()
++pressButton()
++checkButton(): boolean
++checkLamp(): boolean
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1152</x>
+      <y>858</y>
+      <w>168</w>
+      <h>114</h>
+    </coordinates>
+    <panel_attributes>FloorLamp
+--
+-lampLight: boolean
+--
++FloorLamp()
++turnLampOn()
++turnLampOff()
++getLampStatus(): boolean
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1230</x>
+      <y>678</y>
+      <w>42</w>
+      <h>42</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=1..n</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;50.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1224</x>
+      <y>816</y>
+      <w>42</w>
+      <h>54</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=1..n</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1164</x>
+      <y>78</y>
+      <w>126</w>
+      <h>42</h>
+    </coordinates>
+    <panel_attributes>Thread
+--
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>888</x>
+      <y>138</y>
+      <w>18</w>
+      <h>66</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;90.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>534</x>
+      <y>78</y>
+      <w>18</w>
+      <h>78</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;110.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>474</x>
+      <y>42</y>
+      <w>126</w>
+      <h>42</h>
+    </coordinates>
+    <panel_attributes>Thread
+--
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1380</x>
+      <y>396</y>
+      <w>48</w>
+      <h>18</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>60.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1416</x>
+      <y>372</y>
+      <w>126</w>
+      <h>42</h>
+    </coordinates>
+    <panel_attributes>Thread
+--
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>276</x>
+      <y>462</y>
+      <w>102</w>
+      <h>18</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;-</panel_attributes>
+    <additional_attributes>10.0;10.0;150.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>156</x>
+      <y>444</y>
+      <w>126</w>
+      <h>42</h>
+    </coordinates>
+    <panel_attributes>Thread
+--
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1416</x>
+      <y>570</y>
+      <w>126</w>
+      <h>42</h>
+    </coordinates>
+    <panel_attributes>TxtFileReader
+--
++getEvents(filePath)
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1374</x>
+      <y>582</y>
+      <w>54</w>
+      <h>18</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;-</panel_attributes>
+    <additional_attributes>70.0;10.0;10.0;10.0</additional_attributes>
+  </element>
+</diagram>
